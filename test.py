@@ -17,7 +17,7 @@ word_score = np.array([
      [0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,],
      [2 ,0 ,0 ,0 ,0 ,0 ,0 ,2 ,0 ,0 ,0 ,0 ,0 ,0 ,2 ,],
         ])
-letter_score = np.array([
+letterScore = np.array([
         [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1], 
         [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
         [1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1], 
@@ -34,6 +34,7 @@ letter_score = np.array([
         [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
         [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1], 
         ])
+print(letterScore[0, 0])
 fig, ax = plt.subplots()
 ax.set_aspect("equal")
 ax.set_xlim(0, 15)
@@ -41,10 +42,10 @@ ax.set_ylim(-1, 15)
 ax.axis("off") #Note for later : font size will have to adapt to the size of the window
 for i in range(15):
     for j in range(15):
-        if(letter_score[i, j] == 2): 
+        if(letterScore[i, j] == 2): 
              ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='lightskyblue', edgecolor="white"))
              ax.text(j + 0.5, i + 0.5, 'LETTRE\nCOMPTE\nDOUBLE', ha="center", va="center", fontsize=5, color="black")
-        elif(letter_score[i, j] == 3): 
+        elif(letterScore[i, j] == 3): 
              ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='dodgerblue', edgecolor="white"))
              ax.text(j + 0.5, i + 0.5, 'LETTRE\nCOMPTE\nTRIPLE', ha="center", va="center", fontsize=5, color="black")
         elif(word_score[i, j] == 1): 
@@ -57,7 +58,7 @@ for i in range(15):
              ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='tan', edgecolor="white"))
 ax.plot(7.5, 7.5, '*', markersize = 22, color = 'black')
 
-class Tile:
+class Tile: # a enlever
      def __init__(self, symbol, score):
           self.symbol = symbol
           self.score = score
@@ -96,19 +97,17 @@ def draw_board(event):
      letter_score.set_visible(True) #maybe remove if no resizes
      letter.set_visible(True)
      rect.set_visible(True)
-     letter.set_y(-0.5)
-     letter_score.set_y(-0.85)
-     rect.set_y(-1)
+     fig.canvas.restore_region(background)
      for i, tile in enumerate(hand_tiles):
-          dx = int(selected_tile != None and event.ydata < 0 and event.xdata < i + 4 + 0.5) + 4 #error but idk why
-          rect.set_x(i + dx)
-          letter.set_x(0.5 + i + dx)
+          x = int(selected_tile != None and event.ydata < 0 and event.xdata < i + 4 + 0.5) + 4 + i#error but idk why
+          letter.set_position((x + 0.5, -0.5))
+          letter_score.set_position((x + 0.85, -0.85))
+          rect.set_xy((x, -1))
           letter.set_text(tile.symbol)
-          letter_score.set_x(0.85 + i + dx)
           letter_score.set_text(tile.score)
           ax.draw_artist(rect)
-          ax.draw_artist(letter)
           ax.draw_artist(letter_score)
+          ax.draw_artist(letter)
      for i, row in enumerate(tile_board):
           for j, tile in enumerate(row):
                if(is_new[i, j]):
@@ -121,21 +120,25 @@ def draw_board(event):
                     ax.draw_artist(letter_score)
                     ax.draw_artist(letter)
      if event.inaxes and selected_tile:
-          selected.set_visible(True)
           letter.set_position((event.xdata, event.ydata))
           letter.set_text(selected_tile.symbol)
           letter_score.set_position((event.xdata + 0.35, event.ydata - 0.35))
           letter_score.set_text(selected_tile.score)
           rect.set_xy((event.xdata - 0.5, event.ydata - 0.5))
-          selected.set_xy((int(event.xdata), int(event.ydata)))
-          ax.draw_artist(selected)
+          if event.ydata >= 0 :
+               selected.set_visible(True)
+               selected.set_xy((int(event.xdata), int(event.ydata)))
+               ax.draw_artist(selected)
+               selected.set_visible(False)
           ax.draw_artist(rect)
           ax.draw_artist(letter_score)
           ax.draw_artist(letter)
-          selected.set_visible(False)
+          
      letter_score.set_visible(False)
      letter.set_visible(False)
      rect.set_visible(False)
+     fig.canvas.blit(ax.bbox)
+
 
 def on_release(event):
      global selected_tile
@@ -152,6 +155,7 @@ def on_release(event):
           canvas.restore_region(background)
           draw_board(event)
           canvas.blit(ax.bbox)
+     print(calc_score())
 
 def on_draw(event): #for resize
     global background
@@ -167,4 +171,94 @@ fig.canvas.mpl_connect("draw_event", on_draw)
 fig.canvas.mpl_connect("motion_notify_event", on_move)
 fig.canvas.mpl_connect("button_press_event", on_click)
 fig.canvas.mpl_connect("button_release_event", on_release)
+
+def get_word_n_score(hpos, vpos, isHorizontal):
+     score = 0
+     word_mult = 0
+     word = []
+     if isHorizontal:
+           while hpos < 15 and tile_board[vpos, hpos]:
+                if is_new[vpos, hpos]:
+                     word_mult += word_score[vpos, hpos]
+                     score += letterScore[vpos, hpos] * tile_board[vpos, hpos].score
+                else:
+                     score += tile_board[vpos, hpos].score
+                word.append(tile_board[vpos, hpos].symbol)
+                hpos+=1
+     else:
+           while vpos < 15 and tile_board[vpos, hpos]:
+                if is_new[vpos, hpos]:
+                     word_mult += word_score[vpos, hpos]
+                     score += letterScore[vpos, hpos] * tile_board[vpos, hpos].score
+                else:
+                     score += tile_board[vpos, hpos].score
+                word.append(tile_board[vpos, hpos].symbol)
+                vpos+=1
+     if word_mult: return (score * word_mult, word)
+     else: return (score, word)
+
+dic = set()
+with open("French ODS dictionary.txt", 'r') as f: #temporary
+     for i in f:
+          dic.add(tuple(i[:-1]))
+def calc_score():
+     for ystart in range(0, 15): 
+          for xstart in range(0, 15): 
+               if(is_new[ystart, xstart]):
+                    currentScore = 0
+                    if ystart > 0 and tile_board[ystart - 1, xstart]:
+                         vpos = ystart - 1
+                         while vpos >= 0 and tile_board[vpos, xstart]: vpos-=1
+                         score, word = get_word_n_score(hpos, ystart, False)
+                         currentScore += score
+                         if not tuple(word) in dic: return False
+                    elif ystart < 14 and tile_board[ystart + 1, xstart]:
+                         score, word = get_word_n_score(xstart, ystart, False)
+                         currentScore += score
+                         if not tuple(word) in dic: return False
+                    if xstart > 0 and tile_board[ystart, xstart - 1]:
+                         hpos = xstart - 1
+                         while hpos >= 0 and tile_board[ystart, hpos]: hpos-=1
+                         score, word = get_word_n_score(hpos, ystart, True)
+                         currentScore += score
+                         if not tuple(word) in dic: return False
+                    elif xstart < 14 and tile_board[ystart, xstart + 1]:
+                         score, word = get_word_n_score(xstart, ystart, True)
+                         currentScore += score
+                         if not tuple(word) in dic: return False
+                    if ystart < 14 and is_new[ystart + 1, xstart]: # lecture verticale
+                         ystart += 1
+                         while ystart < 15 and is_new[ystart, xstart]:
+                              if xstart > 0 and tile_board[ystart, xstart - 1]:
+                                   hpos = xstart - 1
+                                   while hpos >= 0 and tile_board[ystart, hpos]: hpos-=1
+                                   score, word = get_word_n_score(hpos, ystart, True)
+                                   currentScore += score
+                                   if not tuple(word) in dic: return False
+                              elif xstart < 14 and tile_board[ystart, xstart + 1]:
+                                   score, word = get_word_n_score(xstart, ystart, True)
+                                   currentScore += score
+                                   if not tuple(word) in dic: return False
+                              ystart += 1
+                    elif xstart < 14 and is_new[ystart, xstart + 1]: # lecture horizontale
+                         xstart += 1
+                         while xstart < 15 and is_new[ystart, xstart]:
+                              if ystart > 0 and tile_board[ystart - 1, xstart]:
+                                   vpos = ystart - 1
+                                   while vpos >= 0 and tile_board[vpos, xstart]: vpos-=1
+                                   score, word = get_word_n_score(hpos, ystart, False)
+                                   currentScore += score
+                                   if not tuple(word) in dic: return False
+                              elif ystart < 14 and tile_board[ystart + 1, xstart]:
+                                   score, word = get_word_n_score(xstart, ystart, False)
+                                   currentScore += score
+                                   if not tuple(word) in dic: return False
+                              xstart += 1
+                    return currentScore
+     return 0
+
+
+
+     
+     
 plt.show()
