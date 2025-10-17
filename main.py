@@ -23,19 +23,35 @@ class MainApp(ctk.CTk):
         file_menu.add_separator()
         file_menu.add_command(label="Quitter", command=self.quit)
         view_menu = tk.Menu(menu_bar, tearoff=0)
-        menu_bar.add_cascade(label="Affichage", menu=view_menu)
-        view_menu.add_command(label="Accueil", command=self.show_accueil)
-        view_menu.add_command(label="Scrabble", command=self.show_scrabble)
-        view_menu.add_command(label="Pratique", command=self.show_pratique)
-        view_menu.add_command(label="Dictionnaire", command=self.show_dictionnaire)
+        menu_bar.add_cascade(label="Scrabble", menu=view_menu)
+        view_menu.add_command(label="Nouvelle partie", command=self.show_scrabble("New"))
+        view_menu.add_command(label="Charger une partie", command=self.show_scrabble("Load"))
     def open_file(self):
         ##openFile
         print()
     def save_file(self):
         ##sauvegarde
         print()
-    def show_scrabble(self):
-        print()
+    def show_scrabble(self, typeOfGame="New"):
+        if(typeOfGame == "New"):
+            print("New Game")
+        else:
+            print("Load Game")
+            try:
+                with open("scrabble.txt", "r") as file:
+                    
+                    for i in range(15):
+                        values = file[i].split()
+                        if len(values) == 2:
+                            self.series1.append(float(values[0]))
+                            self.series2.append(float(values[1]))
+                print("Fichier 'scrabble.txt' ouvert avec succès.")
+                #on reaffiche l'accueil pour actualiser
+                self.show_accueil()
+            except FileNotFoundError:
+                print("Le fichier 'series.txt' n'a pas été trouvé.")
+            except Exception as e:
+                print(f"Erreur lors de l'ouverture du fichier: {e}")
     def show_pratique(self):
         self.clear_main_frame()
         self.formulaire = Pratique(self)
