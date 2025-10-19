@@ -15,7 +15,6 @@ class Tile:
         self.score = score
 
     def __repr__(self):
-        # Useful for displaying the hand
         return f"'{self.symbol}'({self.score})"
 
 class Bag:
@@ -58,63 +57,33 @@ class Player:
             self.hand.append(picked_tile)
             self.bag.tiles.remove(picked_tile)
 
-# ---
 
 def find_valid_words(player_hand, valid_word_list):
-    """
-    Returns all valid words that can be formed using the player's hand tiles.
-
-    Args:
-        player_hand (list[Tile]): The list of Tile objects in the player's hand.
-        valid_word_list (list[str]): The list of all valid Scrabble words.
-
-    Returns:
-        set[str]: A set of valid words the player can form.
-    """
-    # 1. Prepare the hand
-    # Isolate symbols and count non-blank tiles
     hand_symbols = [tile.symbol for tile in player_hand]
     hand_counts = Counter(s for s in hand_symbols if s != '?')
     num_blanks = hand_symbols.count('?')
 
     found_words = set()
 
-    # 2. Check every valid word
     for word in valid_word_list:
-        # A word must be between 2 and 7 letters long (max hand size)
         if 2 <= len(word) <= len(player_hand):
-            # Count the letters required for the word
             word_counts = Counter(word.upper())
             blanks_used = 0
             can_form = True
-
-            # Check the availability of each letter
             for letter, requirement in word_counts.items():
                 available = hand_counts.get(letter, 0)
                 missing = requirement - available
 
                 if missing > 0:
-                    # Need blanks to cover the shortage
                     if missing <= (num_blanks - blanks_used):
                         blanks_used += missing
                     else:
-                        # Not enough tiles/blanks to form this word
                         can_form = False
-                        break # Move to the next word
-
+                        break 
             if can_form:
                 found_words.add(word)
-
     return found_words
 
-# ---
-
-## Example Usage
-
-# Valid word list (VERY short for the example)
-
-
-# Initialization
 game_bag = Bag()
 player = Player(game_bag, "Alice")
 
