@@ -30,34 +30,23 @@ class Bag:
             2 * [Tile('V', 4)] + 1 * [Tile('W', 10)] + 1 * [Tile('X', 10)] +
             1 * [Tile('Y', 10)] + 1 * [Tile('Z', 10)] + 2 * [Tile('?', 0)]
         )
+        random.shuffle(self.tiles)
+        self.tiles_left = len(self.tiles)
+    def get_tiles(self, num):
+        self.tiles_left -= num
+        return [self.tiles[i] for i in range(self.tiles_left, self.tiles_left + num)]
 
 class Player:
     def __init__(self, bag, name):
         self.name = name
         self.bag = bag
         self.hand_max_size = 7
-        self.hand = self.starting_hand()
-
-    def starting_hand(self):
-        tiles = []
-        for i in range(self.hand_max_size):
-            if not self.bag.tiles:
-                break
-            picked_tile = random.choice(self.bag.tiles)
-            tiles.append(picked_tile)
-            self.bag.tiles.remove(picked_tile)
-        return tiles
+        self.hand = bag.get_tiles(self.hand_max_size)
 
     def draw_tiles(self):
-        tiles_to_draw = self.hand_max_size - len(self.hand)
-        for i in range(tiles_to_draw):
-            if not self.bag.tiles:
-                break
-            picked_tile = random.choice(self.bag.tiles)
-            self.hand.append(picked_tile)
-            self.bag.tiles.remove(picked_tile)
+        self.hand += self.bag.get_tiles(self.hand_max_size - len(self.hand))
 
-
+## serait nice de faire une classe dictionnaire comptenant cette fonction ngl
 def find_valid_words(player_hand, valid_word_list):
     hand_symbols = [tile.symbol for tile in player_hand]
     hand_counts = Counter(s for s in hand_symbols if s != '?')
