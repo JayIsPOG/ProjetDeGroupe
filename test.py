@@ -1,23 +1,23 @@
 import matplotlib.pyplot as plt
 import numpy as np
 word_score = np.array([
-     [2 ,0 ,0 ,0 ,0 ,0 ,0 ,2 ,0 ,0 ,0 ,0 ,0 ,0 ,2 ,],
-     [0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,],
-     [0 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,0 ,],
-     [0 ,0 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,],
-     [0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,0 ,],
-     [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,],
-     [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,],
-     [2 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,2 ,],
-     [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,],
-     [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,],
-     [0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,0 ,],
-     [0 ,0 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,],
-     [0 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,0 ,],
-     [0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,0 ,],
-     [2 ,0 ,0 ,0 ,0 ,0 ,0 ,2 ,0 ,0 ,0 ,0 ,0 ,0 ,2 ,],
-        ])
-letterScore = np.array([
+ [3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3],
+ [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
+ [1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1],
+ [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+ [1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1],
+ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+ [3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3],
+ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+ [1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1],
+ [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+ [1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1],
+ [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
+ [3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3]
+])
+letter_multiplier = np.array([
         [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1], 
         [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
         [1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1], 
@@ -34,7 +34,6 @@ letterScore = np.array([
         [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
         [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1], 
         ])
-print(letterScore[0, 0])
 fig, ax = plt.subplots()
 ax.set_aspect("equal")
 ax.set_xlim(0, 15)
@@ -42,16 +41,16 @@ ax.set_ylim(-1, 15)
 ax.axis("off") #Note for later : font size will have to adapt to the size of the window
 for i in range(15):
     for j in range(15):
-        if(letterScore[i, j] == 2): 
+        if(letter_multiplier[i, j] == 2): 
              ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='lightskyblue', edgecolor="white"))
              ax.text(j + 0.5, i + 0.5, 'LETTRE\nCOMPTE\nDOUBLE', ha="center", va="center", fontsize=5, color="black")
-        elif(letterScore[i, j] == 3): 
+        elif(letter_multiplier[i, j] == 3): 
              ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='dodgerblue', edgecolor="white"))
              ax.text(j + 0.5, i + 0.5, 'LETTRE\nCOMPTE\nTRIPLE', ha="center", va="center", fontsize=5, color="black")
-        elif(word_score[i, j] == 1): 
+        elif(word_score[i, j] == 2): 
              ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='tomato', edgecolor="white"))
              if(i != 7 != j): ax.text(j + 0.5, i + 0.5, 'MOT\nCOMPTE\nDOUBLE', ha="center", va="center", fontsize=5, color="black")
-        elif(word_score[i, j] == 2): 
+        elif(word_score[i, j] == 3): 
              ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='red', edgecolor="white"))
              ax.text(j + 0.5, i + 0.5, 'MOT\nCOMPTE\nTRIPLE', ha="center", va="center", fontsize=5, color="black")
         else: 
@@ -110,7 +109,8 @@ def draw_board(event):
           ax.draw_artist(letter)
      for i, row in enumerate(tile_board):
           for j, tile in enumerate(row):
-               if(is_new[i, j]):
+               #if(is_new[i, j]): slows down but ok for now
+               if(tile):
                     letter.set_position((j + 0.5, i + 0.5))
                     letter.set_text(tile.symbol)
                     letter_score.set_position((j + 0.85, i+ 0.15))
@@ -155,7 +155,12 @@ def on_release(event):
           canvas.restore_region(background)
           draw_board(event)
           canvas.blit(ax.bbox)
-     print(calc_score())
+
+def key_press(event):
+     if event.key == 'enter':
+          score = calc_score(7-len(hand_tiles))
+          if score:
+
 
 def on_draw(event): #for resize
     global background
@@ -171,94 +176,101 @@ fig.canvas.mpl_connect("draw_event", on_draw)
 fig.canvas.mpl_connect("motion_notify_event", on_move)
 fig.canvas.mpl_connect("button_press_event", on_click)
 fig.canvas.mpl_connect("button_release_event", on_release)
-
-def get_word_n_score(hpos, vpos, isHorizontal):
-     score = 0
-     word_mult = 0
-     word = []
-     if isHorizontal:
-           while hpos < 15 and tile_board[vpos, hpos]:
-                if is_new[vpos, hpos]:
-                     word_mult += word_score[vpos, hpos]
-                     score += letterScore[vpos, hpos] * tile_board[vpos, hpos].score
-                else:
-                     score += tile_board[vpos, hpos].score
-                word.append(tile_board[vpos, hpos].symbol)
-                hpos+=1
-     else:
-           while vpos < 15 and tile_board[vpos, hpos]:
-                if is_new[vpos, hpos]:
-                     word_mult += word_score[vpos, hpos]
-                     score += letterScore[vpos, hpos] * tile_board[vpos, hpos].score
-                else:
-                     score += tile_board[vpos, hpos].score
-                word.append(tile_board[vpos, hpos].symbol)
-                vpos+=1
-     if word_mult: return (score * word_mult, word)
-     else: return (score, word)
+fig.canvas.mpl_connect("key_press_event", key_press)
 
 dic = set()
 with open("French ODS dictionary.txt", 'r') as f: #temporary
      for i in f:
           dic.add(tuple(i[:-1]))
-def calc_score():
-     for ystart in range(0, 15): 
-          for xstart in range(0, 15): 
-               if(is_new[ystart, xstart]):
-                    currentScore = 0
-                    if ystart > 0 and tile_board[ystart - 1, xstart]:
-                         vpos = ystart - 1
-                         while vpos >= 0 and tile_board[vpos, xstart]: vpos-=1
-                         score, word = get_word_n_score(hpos, ystart, False)
-                         currentScore += score
-                         if not tuple(word) in dic: return False
-                    elif ystart < 14 and tile_board[ystart + 1, xstart]:
-                         score, word = get_word_n_score(xstart, ystart, False)
-                         currentScore += score
-                         if not tuple(word) in dic: return False
-                    if xstart > 0 and tile_board[ystart, xstart - 1]:
-                         hpos = xstart - 1
-                         while hpos >= 0 and tile_board[ystart, hpos]: hpos-=1
-                         score, word = get_word_n_score(hpos, ystart, True)
-                         currentScore += score
-                         if not tuple(word) in dic: return False
-                    elif xstart < 14 and tile_board[ystart, xstart + 1]:
-                         score, word = get_word_n_score(xstart, ystart, True)
-                         currentScore += score
-                         if not tuple(word) in dic: return False
-                    if ystart < 14 and is_new[ystart + 1, xstart]: # lecture verticale
-                         ystart += 1
-                         while ystart < 15 and is_new[ystart, xstart]:
-                              if xstart > 0 and tile_board[ystart, xstart - 1]:
-                                   hpos = xstart - 1
-                                   while hpos >= 0 and tile_board[ystart, hpos]: hpos-=1
-                                   score, word = get_word_n_score(hpos, ystart, True)
-                                   currentScore += score
-                                   if not tuple(word) in dic: return False
-                              elif xstart < 14 and tile_board[ystart, xstart + 1]:
-                                   score, word = get_word_n_score(xstart, ystart, True)
-                                   currentScore += score
-                                   if not tuple(word) in dic: return False
-                              ystart += 1
-                    elif xstart < 14 and is_new[ystart, xstart + 1]: # lecture horizontale
-                         xstart += 1
-                         while xstart < 15 and is_new[ystart, xstart]:
-                              if ystart > 0 and tile_board[ystart - 1, xstart]:
-                                   vpos = ystart - 1
-                                   while vpos >= 0 and tile_board[vpos, xstart]: vpos-=1
-                                   score, word = get_word_n_score(hpos, ystart, False)
-                                   currentScore += score
-                                   if not tuple(word) in dic: return False
-                              elif ystart < 14 and tile_board[ystart + 1, xstart]:
-                                   score, word = get_word_n_score(xstart, ystart, False)
-                                   currentScore += score
-                                   if not tuple(word) in dic: return False
-                              xstart += 1
-                    return currentScore
-     return 0
+
+def calc_score(num_tiles_placed):
+     tiles_int_axis = 0
+     for i in range(14, 0, -1): 
+          for j in range(0, 15): 
+               if is_new[i, j]:
+                    total_score = 0
+                    isConnected = False
+                    horizontal_read = j < 15 and is_new[i, j + 1]
+                    vertical_read = i >= 0 and is_new[i - 1, j]
+                    horizontal_vertical_read = not (horizontal_read or vertical_read)
+                    if horizontal_read or horizontal_vertical_read:
+                         current_score = 0
+                         current_word = []
+                         word_multiplier = 1
+                         ys, xs = i, j
+                         while xs > 0 and tile_board[ys, xs - 1]: xs -= 1 # find the start of the word, can be made faster if use same strat as intersect word, but this is cleaner
+                         while xs < 15 and tile_board[ys, xs]: # read the word
+                              current_word += tile_board[ys, xs].symbol
+                              if is_new[ys, xs]:
+                                   tiles_int_axis += 1
+                                   word_multiplier *= word_score[ys, xs]
+                                   current_score += tile_board[ys, xs].score * letter_multiplier[ys, xs]
+                                   if (ys < 14 and tile_board[ys + 1, xs]) or (ys > 0 and tile_board[ys - 1, xs]):
+                                        isConnected = True
+                                        intersecting_score = tile_board[ys, xs].score * letter_multiplier[ys, xs]
+                                        intersecting_word = []
+                                        y = ys + 1
+                                        while y < 15 and tile_board[y, xs]:
+                                             intersecting_word += tile_board[y, xs].symbol
+                                             intersecting_score += tile_board[y, xs].score
+                                             y += 1
+                                        intersecting_word = intersecting_word[::-1] + [tile_board[ys, xs].symbol]
+                                        y = ys - 1
+                                        while y >= 0 and tile_board[y, xs]:
+                                             intersecting_word += tile_board[y, xs].symbol
+                                             intersecting_score += tile_board[y, xs].score
+                                             y -= 1
+                                        if tuple(intersecting_word) in dic: total_score += intersecting_score * word_score[ys, xs]
+                                        else: return False
+                              else:
+                                   current_score += tile_board[ys, xs].score # pas besoin de regarder si un mot intersecte
+                              xs += 1
+                         if tuple(current_word) in dic: total_score += current_score * word_multiplier
+                         else: return False
+
+                    if vertical_read or horizontal_vertical_read:
+                         current_score = 0
+                         current_word = []
+                         word_multiplier = 1
+                         ys, xs = i, j
+                         while ys < 14 and tile_board[ys + 1, xs]: ys += 1 # find the start of the word
+                         while ys >= 0 and tile_board[ys, xs]: # read the word
+                              current_word += tile_board[ys, xs].symbol
+                              if is_new[ys, xs]:
+                                   tiles_int_axis += 1
+                                   word_multiplier *= word_score[ys, xs]
+                                   current_score += tile_board[ys, xs].score * letter_multiplier[ys, xs]
+                                   if (xs < 14 and tile_board[ys, xs + 1]) or (xs > 0 and tile_board[ys, xs - 1]):
+                                        isConnected = True
+                                        intersecting_score = tile_board[ys, xs].score * letter_multiplier[ys, xs]
+                                        intersecting_word = []
+                                        x = xs - 1
+                                        while x >= 0 and tile_board[ys, x]:
+                                             intersecting_word += tile_board[ys, x].symbol
+                                             intersecting_score += tile_board[ys, x].score
+                                             x -= 1
+                                        intersecting_word = intersecting_word[::-1] + [tile_board[ys, xs].symbol]
+                                        x = xs + 1
+                                        while x < 15 and tile_board[ys, x]:
+                                             intersecting_word += tile_board[ys, x].symbol
+                                             intersecting_score += tile_board[ys, x].score
+                                             x += 1
+                                        if tuple(intersecting_word) in dic: total_score += intersecting_score * word_score[ys, xs]
+                                        else: return False
+                              else:
+                                   current_score += tile_board[ys, xs].score # pas besoin de regarder si un mot intersecte
+                              ys -= 1
+                         if tuple(current_word) in dic: total_score += current_score * word_multiplier
+                         else: return False
+
+                    if True: #and isConnected
+                         if horizontal_vertical_read:
+                              if num_tiles_placed == 1:
+                                   return total_score
+                         elif tiles_int_axis == num_tiles_placed:
+                              return total_score
+                    return False
 
 
-
-     
      
 plt.show()
