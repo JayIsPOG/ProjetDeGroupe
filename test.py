@@ -25,29 +25,30 @@ word_score = np.array([
      [3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3]
      ])
 letter_multiplier = np.array([
-        [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1], 
-        [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
-        [1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1], 
-        [2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2], 
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
-        [1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1], 
-        [1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1], 
-        [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1], 
-        [1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1], 
-        [1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1], 
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
-        [2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2], 
-        [1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1], 
-        [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
-        [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
-        ])
+     [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1], 
+     [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
+     [1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1], 
+     [2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2], 
+     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
+     [1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1], 
+     [1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1], 
+     [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1], 
+     [1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1], 
+     [1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1], 
+     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
+     [2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2], 
+     [1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1], 
+     [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
+     [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+     ])
 class Scrabble(ctk.CTkFrame):
      def __init__(self, master=None):
           super().__init__(master)
           self.master = master
           self.create_widgets()
      def create_widgets(self):
-          self.fig, self.ax = plt.subplots()
+          self.is_first_turn = True
+          self.fig, self.ax = plt.subplots(figsize=(8, 8))
           self.ax.set_aspect("equal")
           self.ax.set_xlim(0, 15)
           self.ax.set_ylim(-1, 15)
@@ -72,7 +73,7 @@ class Scrabble(ctk.CTkFrame):
 
           self.canvas = FigureCanvasTkAgg(plt.gcf(), master=self)
           self.canvas.draw()
-          self.canvas.get_tk_widget().grid(row=2, column=0, pady=(10,10))
+          self.canvas.get_tk_widget().grid(row=0, column=0, pady=(10,10))
 
 
           self.background = self.canvas.copy_from_bbox(self.ax.bbox)
@@ -94,6 +95,12 @@ class Scrabble(ctk.CTkFrame):
           self.fig.canvas.mpl_connect("button_press_event", self.on_click)
           self.fig.canvas.mpl_connect("button_release_event", self.on_release)
           self.fig.canvas.mpl_connect("key_press_event", self.key_press)
+
+          self.joueur1_score_label = ctk.CTkLabel(self, text = "Joueur 1 : 0")
+          self.joueur1_score_label.grid(row=0, column=1, pady=(10,10))
+          self.joueur2_score_label = ctk.CTkLabel(self, text = "Joueur 2 : 0")
+          self.joueur2_score_label.grid(row=1, column=1, pady=(10,10))
+
           
      def on_click(self, event):
           if event.inaxes:
@@ -199,6 +206,7 @@ class Scrabble(ctk.CTkFrame):
                     print(score)
                     print(self.bag.tiles)
                     self.current_player = not self.current_player
+                    self.is_first_turn = False
                else: print("Invalid Word!")
 
 
@@ -250,12 +258,12 @@ class Scrabble(ctk.CTkFrame):
                                                   intersecting_word += self.tile_board[y, xs].symbol
                                                   intersecting_score += self.tile_board[y, xs].score
                                                   y -= 1
-                                             if Dictionary().is_word_valid(intersecting_word): total_score += intersecting_score * word_score[ys, xs]
+                                             if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
                                              else: return False
                                    else:
                                         current_score += self.tile_board[ys, xs].score # pas besoin de regarder si un mot intersecte
                                    xs += 1
-                              if Dictionary().is_word_valid(current_word): total_score += current_score * word_multiplier
+                              if Dictionary().is_word_valid(tuple(current_word)): total_score += current_score * word_multiplier
                               else: return False
 
                          elif vertical_read:
@@ -285,12 +293,12 @@ class Scrabble(ctk.CTkFrame):
                                                   intersecting_word += self.tile_board[ys, x].symbol
                                                   intersecting_score += self.tile_board[ys, x].score
                                                   x += 1
-                                             if Dictionary().is_word_valid(intersecting_word): total_score += intersecting_score * word_score[ys, xs]
+                                             if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
                                              else: return False
                                    else:
                                         current_score += self.tile_board[ys, xs].score # pas besoin de regarder si un mot intersecte
                                    ys -= 1
-                              if Dictionary().is_word_valid(current_word): total_score += current_score * word_multiplier
+                              if Dictionary().is_word_valid(tuple(current_word)): total_score += current_score * word_multiplier
                               else: return False
                          else: #placed a single tile, so we will only check how others intersect with it, maybe put the intersection in functions, we repeat a lot...
                               tiles_in_axis = 1
@@ -310,7 +318,7 @@ class Scrabble(ctk.CTkFrame):
                                         intersecting_word += self.tile_board[ys, x].symbol
                                         intersecting_score += self.tile_board[ys, x].score
                                         x += 1
-                                   if Dictionary().is_word_valid(intersecting_word): total_score += intersecting_score * word_score[ys, xs]
+                                   if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
                                    else: return False
 
                               if (ys < 14 and self.tile_board[ys + 1, xs]) or (ys > 0 and self.tile_board[ys - 1, xs]):
@@ -328,10 +336,8 @@ class Scrabble(ctk.CTkFrame):
                                         intersecting_word += self.tile_board[y, xs].symbol
                                         intersecting_score += self.tile_board[y, xs].score
                                         y -= 1
-                                   if Dictionary().is_word_valid(intersecting_word): total_score += intersecting_score * word_score[ys, xs]
+                                   if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
                                    else: return False
-
-                         if True: #and isConnected
-                              if tiles_in_axis == 7-len(self.players[self.current_player].hand):
-                                   return total_score
+                         if len(self.players[self.current_player].hand) == 0 and self.players[self.current_player].hand_max_size == 7: total_score += 50
+                         if (isConnected or (self.is_first_turn and self.is_new[7, 7])) and tiles_in_axis == 7-len(self.players[self.current_player].hand): return total_score
                          return False

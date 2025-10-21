@@ -7,9 +7,10 @@ from test import Scrabble
 class MainApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.geometry("600x600")
+        self.geometry("1000x800")
         self.title("Application Principale")
         self.show_accueil()
+        self.protocol("WM_DELETE_WINDOW",self.quit)
     def show_accueil(self):
         self.clear_main_frame()
         self.accueil = Accueil(master=self)
