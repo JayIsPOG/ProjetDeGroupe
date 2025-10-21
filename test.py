@@ -181,7 +181,9 @@ def key_press(event):
                rect.set_visible(False)
                background = canvas.copy_from_bbox(ax.bbox) # rend les tuiles impregnier dans lecran
                player.draw_tiles()
+               player.score += score
                print(score)
+               print(bag.tiles)
           else: print("Invalid Word!")
 
 
@@ -208,8 +210,8 @@ with open("French ODS dictionary.txt", 'r') as f: #temporary
      for i in f:
           dic.add(tuple(i[:-1]))
 
-def calc_score(num_tiles_placed):
-     tiles_int_axis = 0
+def calc_score(num_tiles_placed): # add the +50 point when 7 tiles are used
+     tiles_in_axis = 0
      for i in range(14, 0, -1): 
           for j in range(0, 15): 
                if is_new[i, j]:
@@ -217,8 +219,7 @@ def calc_score(num_tiles_placed):
                     isConnected = False
                     horizontal_read = j < 15 and is_new[i, j + 1]
                     vertical_read = i >= 0 and is_new[i - 1, j]
-                    horizontal_vertical_read = not (horizontal_read or vertical_read)
-                    if horizontal_read or horizontal_vertical_read:
+                    if horizontal_read:
                          current_score = 0
                          current_word = []
                          word_multiplier = 1
@@ -227,7 +228,7 @@ def calc_score(num_tiles_placed):
                          while xs < 15 and tile_board[ys, xs]: # read the word
                               current_word += tile_board[ys, xs].symbol
                               if is_new[ys, xs]:
-                                   tiles_int_axis += 1
+                                   tiles_in_axis += 1
                                    word_multiplier *= word_score[ys, xs]
                                    current_score += tile_board[ys, xs].score * letter_multiplier[ys, xs]
                                    if (ys < 14 and tile_board[ys + 1, xs]) or (ys > 0 and tile_board[ys - 1, xs]):
@@ -253,7 +254,7 @@ def calc_score(num_tiles_placed):
                          if tuple(current_word) in dic: total_score += current_score * word_multiplier
                          else: return False
 
-                    if vertical_read or horizontal_vertical_read:
+                    elif vertical_read:
                          current_score = 0
                          current_word = []
                          word_multiplier = 1
@@ -262,7 +263,7 @@ def calc_score(num_tiles_placed):
                          while ys >= 0 and tile_board[ys, xs]: # read the word
                               current_word += tile_board[ys, xs].symbol
                               if is_new[ys, xs]:
-                                   tiles_int_axis += 1
+                                   tiles_in_axis += 1
                                    word_multiplier *= word_score[ys, xs]
                                    current_score += tile_board[ys, xs].score * letter_multiplier[ys, xs]
                                    if (xs < 14 and tile_board[ys, xs + 1]) or (xs > 0 and tile_board[ys, xs - 1]):
@@ -287,12 +288,47 @@ def calc_score(num_tiles_placed):
                               ys -= 1
                          if tuple(current_word) in dic: total_score += current_score * word_multiplier
                          else: return False
+                    else: #placed a single tile, so we will only check how others intersect with it, maybe put the intersection in functions, we repeat a lot...
+                         tiles_in_axis = 1
+                         ys, xs = i, j
+                         if (xs < 14 and tile_board[ys, xs + 1]) or (xs > 0 and tile_board[ys, xs - 1]):
+                              isConnected = True
+                              intersecting_score = tile_board[ys, xs].score * letter_multiplier[ys, xs]
+                              intersecting_word = []
+                              x = xs - 1
+                              while x >= 0 and tile_board[ys, x]:
+                                   intersecting_word += tile_board[ys, x].symbol
+                                   intersecting_score += tile_board[ys, x].score
+                                   x -= 1
+                              intersecting_word = intersecting_word[::-1] + [tile_board[ys, xs].symbol]
+                              x = xs + 1
+                              while x < 15 and tile_board[ys, x]:
+                                   intersecting_word += tile_board[ys, x].symbol
+                                   intersecting_score += tile_board[ys, x].score
+                                   x += 1
+                              if tuple(intersecting_word) in dic: total_score += intersecting_score * word_score[ys, xs]
+                              else: return False
+
+                         if (ys < 14 and tile_board[ys + 1, xs]) or (ys > 0 and tile_board[ys - 1, xs]):
+                              isConnected = True
+                              intersecting_score = tile_board[ys, xs].score * letter_multiplier[ys, xs]
+                              intersecting_word = []
+                              y = ys + 1
+                              while y < 15 and tile_board[y, xs]:
+                                   intersecting_word += tile_board[y, xs].symbol
+                                   intersecting_score += tile_board[y, xs].score
+                                   y += 1
+                              intersecting_word = intersecting_word[::-1] + [tile_board[ys, xs].symbol]
+                              y = ys - 1
+                              while y >= 0 and tile_board[y, xs]:
+                                   intersecting_word += tile_board[y, xs].symbol
+                                   intersecting_score += tile_board[y, xs].score
+                                   y -= 1
+                              if tuple(intersecting_word) in dic: total_score += intersecting_score * word_score[ys, xs]
+                              else: return False
 
                     if True: #and isConnected
-                         if horizontal_vertical_read:
-                              if num_tiles_placed == 1:
-                                   return total_score
-                         elif tiles_int_axis == num_tiles_placed:
+                         if tiles_in_axis == num_tiles_placed:
                               return total_score
                     return False
 
