@@ -3,6 +3,7 @@ import tkinter as tk
 from accueil import Accueil
 from pratique import Pratique
 from dictionnairePage import DictionnairePage
+from test import Scrabble
 class MainApp(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -23,14 +24,16 @@ class MainApp(ctk.CTk):
         file_menu.add_separator()
         file_menu.add_command(label="Quitter", command=self.quit)
         view_menu = tk.Menu(menu_bar, tearoff=0)
-        menu_bar.add_cascade(label="Scrabble", menu=view_menu)
-        view_menu.add_command(label="Nouvelle partie", command=self.show_scrabble("New"))
-        view_menu.add_command(label="Charger une partie", command=self.show_scrabble("Load"))
+        menu_bar.add_cascade(label="Affichage", menu=view_menu)
+        view_menu.add_command(label="Accueil", command=self.show_accueil)
+        view_menu.add_command(label="Partique", command=self.show_pratique)
+        view_menu.add_command(label="Dictionnaire", command=self.show_dictionnaire)
     def open_file(self):
         ##openFile
         print()
     def save_file(self):
-        ##sauvegarde
+        with open("series.txt", "w") as file:
+            file.write()
         print()
     def show_scrabble(self, typeOfGame="New"):
         if(typeOfGame == "New"):
@@ -49,13 +52,17 @@ class MainApp(ctk.CTk):
                 print("Le fichier 'scrabble.txt' n'a pas été trouvé.")
             except Exception as e:
                 print(f"Erreur lors de l'ouverture du fichier: {e}")
+        self.clear_main_frame()
+        self.scrabble = Scrabble(self)
+        self.scrabble.pack(expand=True, fill="both")
+        self.create_menu()
     def show_pratique(self):
         self.clear_main_frame()
-        self.formulaire = Pratique(self)
+        self.pratique = Pratique(self)
         self.create_menu()
     def show_dictionnaire(self):
         self.clear_main_frame()
-        self.formulaire = DictionnairePage(self)
+        self.dictionnaire = DictionnairePage(self)
         self.create_menu()
     def clear_main_frame(self):
         for widget in self.winfo_children():
