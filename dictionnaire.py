@@ -33,3 +33,8 @@ class Dictionary():
         return found_words
     def is_word_valid(self, word):
         return word in VALID_WORDS
+    def find_valid_words(self, letters):
+        words = set()
+        for word in VALID_WORDS:
+            if letters in word:
+                words.add(word)
