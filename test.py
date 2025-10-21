@@ -3,6 +3,7 @@ import numpy as np
 from Bag import Tile
 from Bag import Player
 from Bag import Bag
+from dictionnaire import Dictionary
 import customtkinter as ctk
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -43,6 +44,7 @@ letter_multiplier = np.array([
 class Scrabble(ctk.CTkFrame):
      def __init__(self, master=None):
           super().__init__(master)
+          self.master = master
           self.create_widgets()
      def create_widgets(self):
           self.fig, self.ax = plt.subplots()
@@ -86,18 +88,12 @@ class Scrabble(ctk.CTkFrame):
           self.current_player = False
           self.tile_board = np.full((15, 15), None)
           self.is_new = np.zeros((15, 15))
-
           self.selected_tile = None
           self.fig.canvas.mpl_connect("draw_event", self.on_draw)
           self.fig.canvas.mpl_connect("motion_notify_event", self.on_move)
           self.fig.canvas.mpl_connect("button_press_event", self.on_click)
           self.fig.canvas.mpl_connect("button_release_event", self.on_release)
           self.fig.canvas.mpl_connect("key_press_event", self.key_press)
-
-          self.dic = set()
-          with open("French ODS dictionary.txt", 'r') as f: #temporary
-               for i in f:
-                    self.dic.add(tuple(i[:-1]))
           
      def on_click(self, event):
           if event.inaxes:
@@ -254,12 +250,12 @@ class Scrabble(ctk.CTkFrame):
                                                   intersecting_word += self.tile_board[y, xs].symbol
                                                   intersecting_score += self.tile_board[y, xs].score
                                                   y -= 1
-                                             if tuple(intersecting_word) in self.dic: total_score += intersecting_score * word_score[ys, xs]
+                                             if Dictionary().is_word_valid(intersecting_word): total_score += intersecting_score * word_score[ys, xs]
                                              else: return False
                                    else:
                                         current_score += self.tile_board[ys, xs].score # pas besoin de regarder si un mot intersecte
                                    xs += 1
-                              if tuple(current_word) in self.dic: total_score += current_score * word_multiplier
+                              if Dictionary().is_word_valid(current_word): total_score += current_score * word_multiplier
                               else: return False
 
                          elif vertical_read:
@@ -289,12 +285,12 @@ class Scrabble(ctk.CTkFrame):
                                                   intersecting_word += self.tile_board[ys, x].symbol
                                                   intersecting_score += self.tile_board[ys, x].score
                                                   x += 1
-                                             if tuple(intersecting_word) in self.dic: total_score += intersecting_score * word_score[ys, xs]
+                                             if Dictionary().is_word_valid(intersecting_word): total_score += intersecting_score * word_score[ys, xs]
                                              else: return False
                                    else:
                                         current_score += self.tile_board[ys, xs].score # pas besoin de regarder si un mot intersecte
                                    ys -= 1
-                              if tuple(current_word) in self.dic: total_score += current_score * word_multiplier
+                              if Dictionary().is_word_valid(current_word): total_score += current_score * word_multiplier
                               else: return False
                          else: #placed a single tile, so we will only check how others intersect with it, maybe put the intersection in functions, we repeat a lot...
                               tiles_in_axis = 1
@@ -314,7 +310,7 @@ class Scrabble(ctk.CTkFrame):
                                         intersecting_word += self.tile_board[ys, x].symbol
                                         intersecting_score += self.tile_board[ys, x].score
                                         x += 1
-                                   if tuple(intersecting_word) in self.dic: total_score += intersecting_score * word_score[ys, xs]
+                                   if Dictionary().is_word_valid(intersecting_word): total_score += intersecting_score * word_score[ys, xs]
                                    else: return False
 
                               if (ys < 14 and self.tile_board[ys + 1, xs]) or (ys > 0 and self.tile_board[ys - 1, xs]):
@@ -332,7 +328,7 @@ class Scrabble(ctk.CTkFrame):
                                         intersecting_word += self.tile_board[y, xs].symbol
                                         intersecting_score += self.tile_board[y, xs].score
                                         y -= 1
-                                   if tuple(intersecting_word) in self.dic: total_score += intersecting_score * word_score[ys, xs]
+                                   if Dictionary().is_word_valid(intersecting_word): total_score += intersecting_score * word_score[ys, xs]
                                    else: return False
 
                          if True: #and isConnected
