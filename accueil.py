@@ -17,11 +17,11 @@ class Accueil(ctk.CTkFrame):
         self.PracticeLabel = ctk.CTkLabel(self, text="Pratique", fg_color="transparent")
         self.PracticeLabel.grid(row=3, column=1, pady=(10,10))
         self.newGameButton = ctk.CTkButton(self, text="Nouvelle Partie", command=self.master.show_scrabble)
-        self.newGameButton.grid(row=4, column=0, pady=(20,10))
+        self.newGameButton.grid(row=4, column=1, pady=(20,10))
 
         self.DictionnairyLabel = ctk.CTkLabel(self, text="Dictionnaire", fg_color="transparent")
         self.DictionnairyLabel.grid(row=6, column=1, pady=(10,10))
-        self.newGameButton = ctk.CTkButton(self, text="Nouvelle Partie", command=self.master.show_scrabble)
-        self.newGameButton.grid(row=7, column=0, pady=(20,10))
+        self.newGameButton = ctk.CTkButton(self, text="Ouvrir", command=self.master.show_dictionnaire)
+        self.newGameButton.grid(row=7, column=1, pady=(20,10))
 
 

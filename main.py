@@ -2,7 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 from accueil import Accueil
 from pratique import Pratique
-from dictionnaire import Dictionnaire
+from dictionnairePage import DictionnairePage
 class MainApp(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -42,14 +42,11 @@ class MainApp(ctk.CTk):
                     
                     for i in range(15):
                         values = file[i].split()
-                        if len(values) == 2:
-                            self.series1.append(float(values[0]))
-                            self.series2.append(float(values[1]))
                 print("Fichier 'scrabble.txt' ouvert avec succès.")
                 #on reaffiche l'accueil pour actualiser
                 self.show_accueil()
             except FileNotFoundError:
-                print("Le fichier 'series.txt' n'a pas été trouvé.")
+                print("Le fichier 'scrabble.txt' n'a pas été trouvé.")
             except Exception as e:
                 print(f"Erreur lors de l'ouverture du fichier: {e}")
     def show_pratique(self):
@@ -58,7 +55,7 @@ class MainApp(ctk.CTk):
         self.create_menu()
     def show_dictionnaire(self):
         self.clear_main_frame()
-        self.formulaire = Dictionnaire(self)
+        self.formulaire = DictionnairePage(self)
         self.create_menu()
     def clear_main_frame(self):
         for widget in self.winfo_children():
