@@ -16,7 +16,7 @@ class Accueil(ctk.CTkFrame):
 
         self.PracticeLabel = ctk.CTkLabel(self, text="Pratique", fg_color="transparent")
         self.PracticeLabel.grid(row=3, column=1, pady=(10,10))
-        self.newGameButton = ctk.CTkButton(self, text="Nouvelle Partie", command=self.master.show_scrabble)
+        self.newGameButton = ctk.CTkButton(self, text="Nouvelle Partie", command=self.master.show_pratique)
         self.newGameButton.grid(row=4, column=1, pady=(20,10))
 
         self.DictionnairyLabel = ctk.CTkLabel(self, text="Dictionnaire", fg_color="transparent")

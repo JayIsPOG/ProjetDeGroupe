@@ -43,6 +43,7 @@ letter_multiplier = np.array([
 class Scrabble(ctk.CTkFrame):
      def __init__(self, master=None):
           super().__init__(master)
+          self.master = master
           self.create_widgets()
      def create_widgets(self):
           self.fig, self.ax = plt.subplots()
