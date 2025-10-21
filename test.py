@@ -96,10 +96,9 @@ class Scrabble(ctk.CTkFrame):
           self.fig.canvas.mpl_connect("button_release_event", self.on_release)
           self.fig.canvas.mpl_connect("key_press_event", self.key_press)
 
-          self.joueur1_score_label = ctk.CTkLabel(self, text = "Joueur 1 : 0")
-          self.joueur1_score_label.grid(row=0, column=1, pady=(10,10))
-          self.joueur2_score_label = ctk.CTkLabel(self, text = "Joueur 2 : 0")
-          self.joueur2_score_label.grid(row=1, column=1, pady=(10,10))
+          self.score_labels = (ctk.CTkLabel(self, text = "Score du joueur 1 : 0"), ctk.CTkLabel(self, text = "Score du joueur 2 : 0"))
+          self.score_labels[0].place(x=0, y=0)
+          self.score_labels[1].place(x=0, y=20)
 
           
      def on_click(self, event):
@@ -203,8 +202,7 @@ class Scrabble(ctk.CTkFrame):
                     self.background = self.canvas.copy_from_bbox(self.ax.bbox) # rend les tuiles impregnier dans lecran
                     self.players[self.current_player].draw_tiles()
                     self.players[self.current_player].score += score
-                    print(score)
-                    print(self.bag.tiles)
+                    self.score_labels[self.current_player].configure(text = f"Score du joueur {self.current_player + 1} : {self.players[self.current_player].score}")
                     self.current_player = not self.current_player
                     self.is_first_turn = False
                else: print("Invalid Word!")
@@ -221,16 +219,17 @@ class Scrabble(ctk.CTkFrame):
                self.draw_board(event)
                self.canvas.blit(self.ax.bbox)
 
-
-     def calc_score(self): # add the +50 point when 7 tiles are used
+     def calc_score(self):
           tiles_in_axis = 0
           for i in range(14, 0, -1): 
                for j in range(0, 15): 
                     if self.is_new[i, j]:
                          total_score = 0
                          isConnected = False
-                         horizontal_read = j < 15 and self.is_new[i, j + 1]
-                         vertical_read = i >= 0 and self.is_new[i - 1, j]
+                         horizontal_read = False
+                         for find in range(j, 15): horizontal_read = horizontal_read or self.is_new[i, find]
+                         vertical_read = False
+                         for find in range(i, 15): vertical_read = vertical_read or self.is_new[find, j]
                          if horizontal_read:
                               current_score = 0
                               current_word = []
@@ -261,6 +260,7 @@ class Scrabble(ctk.CTkFrame):
                                              if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
                                              else: return False
                                    else:
+                                        isConnected = True
                                         current_score += self.tile_board[ys, xs].score # pas besoin de regarder si un mot intersecte
                                    xs += 1
                               if Dictionary().is_word_valid(tuple(current_word)): total_score += current_score * word_multiplier
@@ -296,6 +296,7 @@ class Scrabble(ctk.CTkFrame):
                                              if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
                                              else: return False
                                    else:
+                                        isConnected = True
                                         current_score += self.tile_board[ys, xs].score # pas besoin de regarder si un mot intersecte
                                    ys -= 1
                               if Dictionary().is_word_valid(tuple(current_word)): total_score += current_score * word_multiplier

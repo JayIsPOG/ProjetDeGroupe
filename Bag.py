@@ -19,7 +19,7 @@ class Bag:
             2 * [Tile('P', 3)] + 1 * [Tile('Q', 8)] + 6 * [Tile('R', 1)] +
             6 * [Tile('S', 1)] + 6 * [Tile('T', 1)] + 6 * [Tile('U', 1)] +
             2 * [Tile('V', 4)] + 1 * [Tile('W', 10)] + 1 * [Tile('X', 10)] +
-            1 * [Tile('Y', 10)] + 1 * [Tile('Z', 10)] + 2 * [Tile('?', 0)]
+            1 * [Tile('Y', 10)] + 1 * [Tile('Z', 10)] # + 2 * [Tile('?', 0)] jsp comment confirmer un  mot avec sa...
         )
         random.shuffle(self.tiles)
         self.tiles_left = len(self.tiles)
@@ -37,3 +37,4 @@ class Player:
 
     def draw_tiles(self):
         self.hand += self.bag.get_tiles(self.hand_max_size - len(self.hand))
+        self.hand_max_size = len(self.hand)
