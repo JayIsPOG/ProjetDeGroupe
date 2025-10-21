@@ -38,6 +38,7 @@ class Bag:
 
 class Player:
     def __init__(self, bag, name):
+        self.score = 0
         self.name = name
         self.bag = bag
         self.hand_max_size = 7
