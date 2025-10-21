@@ -1,14 +1,5 @@
 import random
 from collections import Counter
-def charger_dictionnaire(nom_fichier="French ODS dictionary.txt"):
-    try:
-        with open(nom_fichier, 'r') as f:
-            mots = {ligne.strip().upper() for ligne in f}
-        return mots
-    except FileNotFoundError:
-        print(f"ERREUR : Le fichier '{nom_fichier}' est introuvable. Veuillez le creer et le remplir.")
-        return set()
-VALID_WORDS = charger_dictionnaire("French ODS dictionary.txt")
 class Tile:
     def __init__(self, symbol, score):
         self.symbol = symbol
@@ -46,45 +37,3 @@ class Player:
 
     def draw_tiles(self):
         self.hand += self.bag.get_tiles(self.hand_max_size - len(self.hand))
-
-## serait nice de faire une classe dictionnaire comptenant cette fonction ngl
-def find_valid_words(player_hand, valid_word_list):
-    hand_symbols = [tile.symbol for tile in player_hand]
-    hand_counts = Counter(s for s in hand_symbols if s != '?')
-    num_blanks = hand_symbols.count('?')
-
-    found_words = set()
-
-    for word in valid_word_list:
-        if 2 <= len(word) <= len(player_hand):
-            word_counts = Counter(word.upper())
-            blanks_used = 0
-            can_form = True
-            for letter, requirement in word_counts.items():
-                available = hand_counts.get(letter, 0)
-                missing = requirement - available
-
-                if missing > 0:
-                    if missing <= (num_blanks - blanks_used):
-                        blanks_used += missing
-                    else:
-                        can_form = False
-                        break 
-            if can_form:
-                found_words.add(word)
-    return found_words
-
-game_bag = Bag()
-player = Player(game_bag, "Alice")
-
-print(f"Hand of {player.name}: {player.hand}")
-player.hand = [Tile('L', 8), Tile('E', 1), Tile('A', 1), Tile('O', 10), Tile('J', 0), Tile('R', 1), Tile('S', 1)]
-print(f"(Forced hand for demo: {player.hand})")
-
-
-results = find_valid_words(player.hand, VALID_WORDS)
-
-
-sorted_results = sorted(list(results), key=lambda x: (x, len(x)))
-
-print(sorted_results)

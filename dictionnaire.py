@@ -1,6 +1,10 @@
-from Bag import VALID_WORDS
 from collections import Counter
-class Dictionnaire():
+VALID_WORDS = set()
+with open("French ODS dictionary.txt", 'r') as f:
+    for i in f:
+        VALID_WORDS.add(tuple(i[:-1]))
+
+class Dictionary():
     @staticmethod
     def find_valid_words(player_hand, valid_word_list = VALID_WORDS):
         hand_symbols = [tile.symbol for tile in player_hand]
@@ -27,3 +31,5 @@ class Dictionnaire():
                 if can_form:
                     found_words.add(word)
         return found_words
+    def is_word_valid(word):
+        return word in VALID_WORDS
