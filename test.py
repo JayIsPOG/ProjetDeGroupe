@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from Bag import Tile
+from Bag import Player
+from Bag import Bag
 word_score = np.array([
  [3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3],
  [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
@@ -32,7 +35,7 @@ letter_multiplier = np.array([
         [2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2], 
         [1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1], 
         [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
-        [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1], 
+        [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
         ])
 fig, ax = plt.subplots()
 ax.set_aspect("equal")
@@ -57,11 +60,6 @@ for i in range(15):
              ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='tan', edgecolor="white"))
 ax.plot(7.5, 7.5, '*', markersize = 22, color = 'black')
 
-class Tile: # a enlever
-     def __init__(self, symbol, score):
-          self.symbol = symbol
-          self.score = score
-
 canvas = fig.canvas
 canvas.draw()
 background = canvas.copy_from_bbox(ax.bbox)
@@ -72,9 +70,11 @@ ax.add_patch(rect)
 letter = ax.text(0.5, 0.5, '', ha="center", va="center", fontsize=14, color="black", visible = False)
 letter_score = ax.text(0.35, 0.35, '', ha="center", va="center", fontsize=5, color="black", visible = False)
 
+bag = Bag()
+player = Player(bag, "bob")
 tile_board = np.full((15, 15), None)
 is_new = np.zeros((15, 15))
-hand_tiles = [Tile('A', 1), Tile('B', 2), Tile('C', 3), Tile('D', 4), Tile('E', 5), Tile('F', 6), Tile('G', 7)]
+
 selected_tile = None
 
 
@@ -83,10 +83,10 @@ def on_click(event):
      if event.inaxes:
           x = int(event.xdata)
           y = int(event.ydata)
-          if event.ydata < 0 and 4 <= x < len(hand_tiles) + 4:
-               selected_tile = hand_tiles[x- 4]
-               hand_tiles.pop(x - 4)
-          elif 0 <= y < 15 and 0 <= x < 15:
+          if event.ydata < 0 and 4 <= x < len(player.hand) + 4:
+               selected_tile = player.hand[x - 4]
+               player.hand.pop(x - 4)
+          elif 0 <= y < 15 and 0 <= x < 15 and is_new[y, x]:
                selected_tile = tile_board[y, x]
                tile_board[y, x] = None
                is_new[y, x] = False
@@ -97,7 +97,7 @@ def draw_board(event):
      letter.set_visible(True)
      rect.set_visible(True)
      fig.canvas.restore_region(background)
-     for i, tile in enumerate(hand_tiles):
+     for i, tile in enumerate(player.hand):
           x = int(selected_tile != None and event.ydata < 0 and event.xdata < i + 4 + 0.5) + 4 + i#error but idk why
           letter.set_position((x + 0.5, -0.5))
           letter_score.set_position((x + 0.85, -0.85))
@@ -109,8 +109,7 @@ def draw_board(event):
           ax.draw_artist(letter)
      for i, row in enumerate(tile_board):
           for j, tile in enumerate(row):
-               #if(is_new[i, j]): slows down but ok for now
-               if(tile):
+               if(is_new[i, j]):
                     letter.set_position((j + 0.5, i + 0.5))
                     letter.set_text(tile.symbol)
                     letter_score.set_position((j + 0.85, i+ 0.15))
@@ -149,8 +148,8 @@ def on_release(event):
                if 0 <= event.ydata and not tile_board[y, x]:
                     is_new[y, x] = True
                     tile_board[y, x] = selected_tile
-               else: hand_tiles.insert(max(0, min( int(event.xdata - 3.5), len(hand_tiles))), selected_tile) #repositionning hand tiles
-          else: hand_tiles.append(selected_tile)
+               else: player.hand.insert(max(0, min( int(event.xdata - 3.5), len(player.hand))), selected_tile) #repositionning hand tiles
+          else: player.hand.append(selected_tile)
           selected_tile = None
           canvas.restore_region(background)
           draw_board(event)
@@ -158,8 +157,34 @@ def on_release(event):
 
 def key_press(event):
      if event.key == 'enter':
-          score = calc_score(7-len(hand_tiles))
+          score = calc_score(7-len(player.hand))
           if score:
+               global background
+               letter_score.set_visible(True) #maybe remove if no resizes
+               letter.set_visible(True)
+               rect.set_visible(True)
+               fig.canvas.restore_region(background)
+               for i, row in enumerate(tile_board):
+                    for j, tile in enumerate(row):
+                         if(is_new[i, j]):
+                              is_new[i, j] = False
+                              letter.set_position((j + 0.5, i + 0.5))
+                              letter.set_text(tile.symbol)
+                              letter_score.set_position((j + 0.85, i+ 0.15))
+                              letter_score.set_text(tile.score)
+                              rect.set_xy((j, i))
+                              ax.draw_artist(rect)
+                              ax.draw_artist(letter_score)
+                              ax.draw_artist(letter)
+               letter_score.set_visible(False)
+               letter.set_visible(False)
+               rect.set_visible(False)
+               background = canvas.copy_from_bbox(ax.bbox) # rend les tuiles impregnier dans lecran
+               player.draw_tiles()
+               print(score)
+          else: print("Invalid Word!")
+
+
 
 
 def on_draw(event): #for resize
