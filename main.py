@@ -3,7 +3,7 @@ import tkinter as tk
 from accueil import Accueil
 from pratique import Pratique
 from dictionnairePage import DictionnairePage
-from test import Scrabble
+from scrabble import Scrabble
 class MainApp(ctk.CTk):
     def __init__(self):
         super().__init__()
