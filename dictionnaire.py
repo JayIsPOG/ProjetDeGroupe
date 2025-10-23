@@ -4,9 +4,9 @@ VALID_WORDS = set()
 compositions = []
 with open("French ODS dictionary.txt", 'r') as f:
     for i in f:
-        word = i.strip()
-        VALID_WORDS.add(tuple(word))
+        word = i.strip().upper()
         letter_frequency = {}
+        VALID_WORDS.add(tuple(word))
         for l in word:
             index = ord(l) - ord('A')
             if index in letter_frequency: letter_frequency[index]+=1
@@ -16,7 +16,7 @@ class Dictionary():
     @staticmethod
     def find_valid_words(letters):
         letter_count = np.zeros(26)
-        for l in letters: letter_count[ord(l) - ord('A')] += 1
+        for l in letters: letter_count[ord(l.upper()) - ord('A')] += 1
         available_words = []
         for word, letter_frequency in compositions:
             if all(letter_count[letter] >= frequency for letter, frequency in letter_frequency):
@@ -24,7 +24,7 @@ class Dictionary():
         return available_words
     
     def is_word_valid(self, word):
-        return word in VALID_WORDS
+        return word.upper() in VALID_WORDS
     '''def find_valid_words(self, player_hand, valid_word_list = VALID_WORDS):
         hand_symbols = [tile.symbol for tile in player_hand]
         hand_counts = Counter(s for s in hand_symbols if s != '?')
@@ -50,4 +50,3 @@ class Dictionary():
                 if can_form:
                     found_words.add(word)
         return found_words'''
-print(Dictionary().find_valid_words("TABOUER"))
