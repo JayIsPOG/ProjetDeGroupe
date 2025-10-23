@@ -118,7 +118,7 @@ class Scrabble(ctk.CTkFrame):
      def draw_board(self, event = None):
           self.fig.canvas.restore_region(self.background)
           for i, tile in enumerate(self.players[self.current_player].hand):
-               x = 4 + i + int(event != None and event.inaxes and self.selected_tile != None and event.ydata < 0 and event.xdata < i + 4 + 0.5)
+               x = 4 + i + int(self.selected_tile != None and event.ydata < 0 and event.xdata < i + 4 + 0.5)
                self.letter.set_position((x + 0.5, -0.5))
                self.letter_score.set_position((x + 0.85, -0.85))
                self.rect.set_xy((x, -1))

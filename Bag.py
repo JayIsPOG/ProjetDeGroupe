@@ -6,7 +6,7 @@ class Tile:
         self.score = score
 
     def __repr__(self):
-        return f"'{self.symbol}'({self.score})"
+        return f"{self.symbol}({self.score})"
 
 class Bag:
     def __init__(self):
