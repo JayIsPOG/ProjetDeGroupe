@@ -24,7 +24,7 @@ class Dictionary():
         return available_words
     
     def is_word_valid(self, word):
-        return word.upper() in VALID_WORDS
+        return word in VALID_WORDS
     '''def find_valid_words(self, player_hand, valid_word_list = VALID_WORDS):
         hand_symbols = [tile.symbol for tile in player_hand]
         hand_counts = Counter(s for s in hand_symbols if s != '?')
