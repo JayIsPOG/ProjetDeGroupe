@@ -15,6 +15,7 @@ class MainApp(ctk.CTk):
         self.clear_main_frame()
         self.accueil = Accueil(master=self)
         self.create_menu()
+        
     def create_menu(self):
         menu_bar = tk.Menu(self)
         self.config(menu=menu_bar)
