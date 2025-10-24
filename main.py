@@ -7,18 +7,10 @@ from scrabble import Scrabble
 class MainApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-<<<<<<< Updated upstream
-        self.geometry("1000x800")
-        self.geometry("800x800")
-        self.title("Application Principale")
-        self.show_accueil()
-        self.protocol("WM_DELETE_WINDOW",self.quit)
-=======
         self.geometry("1000x1000")
         self.title("Application Principale")
         self.show_accueil()
         self.protocol("WM_DELETE_WINDOW", self.quit)
->>>>>>> Stashed changes
     def show_accueil(self):
         self.clear_main_frame()
         self.accueil = Accueil(master=self)

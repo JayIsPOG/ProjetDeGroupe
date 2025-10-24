@@ -25,7 +25,7 @@ class Dictionary():
     
     def is_word_valid(self, word):
         return word in VALID_WORDS
-    '''def find_valid_words(self, player_hand, valid_word_list = VALID_WORDS):
+    def find_valid_words(self, player_hand, valid_word_list = VALID_WORDS):
         hand_symbols = [tile.symbol for tile in player_hand]
         hand_counts = Counter(s for s in hand_symbols if s != '?')
         num_blanks = hand_symbols.count('?')
@@ -50,7 +50,6 @@ class Dictionary():
                 if can_form:
                     found_words.add(word)
         return found_words
-<<<<<<< Updated upstream
     def is_word_valid(self, word):
         return word in VALID_WORDS
     def find_valid_words(self, letters):
@@ -58,8 +57,3 @@ class Dictionary():
         for word in VALID_WORDS:
             if letters in word:
                 words.add(word)
-=======
-    @staticmethod
-    def is_word_valid(word):
-        return word in VALID_WORDS
->>>>>>> Stashed changes
