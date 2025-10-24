@@ -9,7 +9,7 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # ajouter une fonction pour flush la main pis repiger au cas ou aucun mot son possibles
-# save and load files
+# save and load files et sauvegarder les scores
 # regarder si sac est vide pour finir la partie
 # afficher qui est le joueur actuel
 
@@ -201,6 +201,11 @@ class Scrabble(ctk.CTkFrame):
                     self.is_first_turn = False
                     self.draw_board()
                else: print("Invalid Word!")
+          elif event.key == 's':
+               self.save_game("game.txt")
+          elif event.key == 'l':
+               self.load_file("game.txt")
+
      def save_game(self, file_name):
           for i in range(0, 15):
                for j in range(0, 15):
@@ -218,7 +223,7 @@ class Scrabble(ctk.CTkFrame):
                     for j in range(0, 15):
                          if self.tile_board[i, j] != None: file.write(f"{tile.symbol}{tile.score}\n")
                          else: file.write('\n')
-               for tile in self.bag:
+               for tile in self.bag.tiles:
                     file.write(f"{tile.symbol}{tile.score}\n")
      def load_file(self, file_name):
           self.bag.tiles = []
@@ -233,12 +238,12 @@ class Scrabble(ctk.CTkFrame):
                index = 1
                while lines[index] != '\n':
                     l = lines[index].strip()
-                    self.players[0].append(Tile(l[0], int(l[1:])))
+                    self.players[0].hand.append(Tile(l[0], int(l[1:])))
                     index += 1
                index += 1
                while lines[index] != '\n':
                     l = lines[index].strip()
-                    self.players[1].append(Tile(l[0], int(l[1:])))
+                    self.players[1].hand.append(Tile(l[0], int(l[1:])))
                     index += 1
                index += 1
                for i in range(0, 15):
@@ -247,10 +252,9 @@ class Scrabble(ctk.CTkFrame):
                               l = lines[index].strip()
                               self.tile_board[i, j] = Tile(l[0], int(l[1:]))
                          index += 1
-               while lines[index] != '\n':
-                    l = lines[index].strip()
-                    self.bag.append(Tile(l[0], int(l[1:])))
-                    index += 1
+               for i in range(index, len(lines)):
+                    l = lines[i].strip()
+                    self.bag.tiles.append(Tile(l[0], int(l[1:])))
                
 
 
