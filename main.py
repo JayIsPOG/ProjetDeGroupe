@@ -11,6 +11,8 @@ class MainApp(ctk.CTk):
         self.title("Application Principale")
         self.show_accueil()
         self.protocol("WM_DELETE_WINDOW", self.quit)
+        self.SAVE_FILE_NAME = "game.txt"
+        self.scrabble = Scrabble(self)
     def show_accueil(self):
         self.clear_main_frame()
         self.accueil = Accueil(master=self)
@@ -19,12 +21,12 @@ class MainApp(ctk.CTk):
     def create_menu(self):
         menu_bar = tk.Menu(self)
         self.config(menu=menu_bar)
-        file_menu = tk.Menu(menu_bar, tearoff=0)
-        menu_bar.add_cascade(label="Fichier", menu=file_menu)
-        file_menu.add_command(label="Ouvrir", command=self.open_file)
-        file_menu.add_command(label="Enregistrer", command=self.save_file)
-        file_menu.add_separator()
-        file_menu.add_command(label="Quitter", command=self.quit)
+        #file_menu = tk.Menu(menu_bar, tearoff=0)
+        #menu_bar.add_cascade(label="Fichier", menu=file_menu)
+        #file_menu.add_command(label="Ouvrir", command=self.open_file)
+        #file_menu.add_command(label="Enregistrer", command=self.save_file)
+        #file_menu.add_separator()
+        #file_menu.add_command(label="Quitter", command=self.quit)
         view_menu = tk.Menu(menu_bar, tearoff=0)
         menu_bar.add_cascade(label="Affichage", menu=view_menu)
         view_menu.add_command(label="Accueil", command=self.show_accueil)
