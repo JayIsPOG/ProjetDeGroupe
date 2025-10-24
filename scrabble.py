@@ -160,7 +160,7 @@ class Scrabble(ctk.CTkFrame):
                self.ax.draw_artist(self.letter)
                
           self.fig.canvas.blit(self.ax.bbox)
-          
+
      def on_release(self, event):
           if self.selected_tile:
                if event.inaxes:
@@ -208,7 +208,7 @@ class Scrabble(ctk.CTkFrame):
                          self.is_new[i, j] = False
                          self.players[self.current_player].hand.append(self.tile_board[i, j])
                          self.tile_board[i, j] = None
-          with open("file_name.txt", 'w') as file:
+          with open(file_name, 'w') as file:
                for tile in self.players[self.current_player].hand:
                     file.write(f"{tile.symbol}{tile.score}\n")
                file.write('\n')

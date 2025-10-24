@@ -11,7 +11,7 @@ with open("French ODS dictionary.txt", 'r') as f:
             index = ord(l) - ord('A')
             if index in letter_frequency: letter_frequency[index]+=1
             else: letter_frequency[index] = 1
-        compositions.append((word, ((letter, frequency) for letter, frequency in letter_frequency.items())))
+        compositions.append((word, letter_frequency.items()))
 class Dictionary():
     @staticmethod
     def find_valid_words(letters):
@@ -25,7 +25,7 @@ class Dictionary():
     
     def is_word_valid(self, word):
         return word in VALID_WORDS
-    def find_valid_words(self, player_hand, valid_word_list = VALID_WORDS):
+    '''def find_valid_words(self, player_hand, valid_word_list = VALID_WORDS):
         hand_symbols = [tile.symbol for tile in player_hand]
         hand_counts = Counter(s for s in hand_symbols if s != '?')
         num_blanks = hand_symbols.count('?')
@@ -49,6 +49,4 @@ class Dictionary():
                             break 
                 if can_form:
                     found_words.add(word)
-        return found_words
-    def is_word_valid(self, word):
-        return word in VALID_WORDS
+        return found_words'''
