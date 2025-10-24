@@ -43,7 +43,6 @@ class MainApp(ctk.CTk):
             print("Load Game")
             try:
                 with open("scrabble.txt", "r") as file:
-                    
                     for i in range(15):
                         values = file[i].split()
                 print("Fichier 'scrabble.txt' ouvert avec succès.")

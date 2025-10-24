@@ -198,7 +198,7 @@ class Scrabble(ctk.CTkFrame):
                else: print("Invalid Word!")
 
      def on_move(self, event):
-          if self.selected_tile:
+          if self.selected_tile and event.inaxes:
                self.canvas.restore_region(self.background)
                self.draw_board(event)
                self.canvas.blit(self.ax.bbox)
