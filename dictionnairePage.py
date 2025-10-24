@@ -43,15 +43,21 @@ class DictionnairePage(ctk.CTkFrame):
                 listeTexte.remove(lettre)
         self.tk_textbox.delete("0.0", "end")
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         self.tk_textbox.insert("0.0", Dictionary.is_word_valid(Dictionary, tuple(self.text[:-1])))
 =======
         self.text = self.textbox.get("0.0", "end")
         self.tk_textbox.insert("0.0", Dictionary.is_word_valid(tuple(self.text[:-1])))
 >>>>>>> Stashed changes
 =======
+=======
+>>>>>>> Stashed changes
         #self.tk_textbox.insert("0.0", Dictionary.is_word_valid(Dictionary, tuple(self.text[:-1])))
         for word in Dictionary.find_valid_words(self.text[:-1]):
             self.tk_textbox.insert("0.0", word + "\n")
         #for word in Dictionary.find_valid_wordsJokers(Dictionary, self.text[:-1]):
         #    self.tk_textbox.insert("0.0", word + "\n")
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes

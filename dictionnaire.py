@@ -31,6 +31,9 @@ class Dictionary():
     def is_word_valid(self, word):
         return word in VALID_WORDS
     def find_valid_wordsJokers(self, player_hand, valid_word_list = VALID_WORDS):
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         hand_symbols = [tile.symbol for tile in player_hand]
         hand_counts = Counter(s for s in hand_symbols if s != '?')
@@ -58,6 +61,7 @@ class Dictionary():
         return found_words
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     def is_word_valid(self, word):
         return word in VALID_WORDS
     def find_valid_words(self, letters):
@@ -69,6 +73,8 @@ class Dictionary():
     @staticmethod
     def is_word_valid(word):
         return word in VALID_WORDS
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
