@@ -38,3 +38,8 @@ class Player:
     def draw_tiles(self):
         self.hand += self.bag.get_tiles(self.hand_max_size - len(self.hand))
         self.hand_max_size = len(self.hand)
+
+    def clear_hand(self):
+        self.bag.append(self.hand)
+        self.hand = []
+        self.draw_tiles()
