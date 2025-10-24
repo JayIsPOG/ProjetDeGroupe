@@ -160,7 +160,7 @@ class Scrabble(ctk.CTkFrame):
                self.ax.draw_artist(self.letter)
                
           self.fig.canvas.blit(self.ax.bbox)
-          
+
      def on_release(self, event):
           if self.selected_tile:
                if event.inaxes:
@@ -208,19 +208,53 @@ class Scrabble(ctk.CTkFrame):
                          self.is_new[i, j] = False
                          self.players[self.current_player].hand.append(self.tile_board[i, j])
                          self.tile_board[i, j] = None
-          with open("file_name.txt", 'w') as file:
-               for tile in self.players[self.current_player].hand:
-                    file.write(f"{tile.symbol}{tile.score}\n")
-               file.write('\n')
-               for tile in self.players[not self.current_player].hand:
-                    file.write(f"{tile.symbol}{tile.score}\n")
-               file.write('\n')
+          with open(file_name, 'w') as file:
+               file.write(f"{self.current_player}\n")
+               for player in self.players:
+                    for tile in player.hand:
+                         file.write(f"{tile.symbol}{tile.score}\n")
+                    file.write('\n')
                for i in range(0, 15):
                     for j in range(0, 15):
-                         if self.tile_board[i, j] != None:
-                              file.write(f"{tile.symbol}{tile.score}\n")
-                         else:
-                              file.write('\n')
+                         if self.tile_board[i, j] != None: file.write(f"{tile.symbol}{tile.score}\n")
+                         else: file.write('\n')
+               for tile in self.bag:
+                    file.write(f"{tile.symbol}{tile.score}\n")
+     def load_file(self, file_name):
+          self.bag.tiles = []
+          self.players[0].hand = []
+          self.players[1].hand = []
+          self.tile_board = np.full((15, 15), None)
+          self.is_new = np.zeros((15, 15))
+          self.selected_tile = None
+          with open(file_name, 'r') as file: ## ajouter message erreur si file existe pas
+               lines = [line for line in file]
+               self.current_player = bool(lines[0].strip())
+               index = 1
+               while lines[index] != '\n':
+                    l = lines[index].strip()
+                    self.players[0].append(Tile(l[0], int(l[1:])))
+                    index += 1
+               index += 1
+               while lines[index] != '\n':
+                    l = lines[index].strip()
+                    self.players[1].append(Tile(l[0], int(l[1:])))
+                    index += 1
+               index += 1
+               for i in range(0, 15):
+                    for j in range(0, 15):
+                         if lines[index] != '\n':
+                              l = lines[index].strip()
+                              self.tile_board[i, j] = Tile(l[0], int(l[1:]))
+                         index += 1
+               while lines[index] != '\n':
+                    l = lines[index].strip()
+                    self.bag.append(Tile(l[0], int(l[1:])))
+                    index += 1
+               
+
+
+          
 
      def on_move(self, event):
           if self.selected_tile and event.inaxes:
