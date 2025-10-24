@@ -7,6 +7,12 @@ from dictionnaire import Dictionary
 import customtkinter as ctk
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+# ajouter une fonction pour flush la main pis repiger au cas ou aucun mot son possibles
+# save and load files
+# regarder si sac est vide pour finir la partie
+# afficher qui est le joueur actuel
+
 word_score = np.array([
      [3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3],
      [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
@@ -154,8 +160,7 @@ class Scrabble(ctk.CTkFrame):
                self.ax.draw_artist(self.letter)
                
           self.fig.canvas.blit(self.ax.bbox)
-
-
+          
      def on_release(self, event):
           if self.selected_tile:
                if event.inaxes:
@@ -196,6 +201,26 @@ class Scrabble(ctk.CTkFrame):
                     self.is_first_turn = False
                     self.draw_board()
                else: print("Invalid Word!")
+     def save_game(self, file_name):
+          for i in range(0, 15):
+               for j in range(0, 15):
+                    if self.is_new[i, j]:
+                         self.is_new[i, j] = False
+                         self.players[self.current_player].hand.append(self.tile_board[i, j])
+                         self.tile_board[i, j] = None
+          with open("file_name.txt", 'w') as file:
+               for tile in self.players[self.current_player].hand:
+                    file.write(f"{tile.symbol}{tile.score}\n")
+               file.write('\n')
+               for tile in self.players[not self.current_player].hand:
+                    file.write(f"{tile.symbol}{tile.score}\n")
+               file.write('\n')
+               for i in range(0, 15):
+                    for j in range(0, 15):
+                         if self.tile_board[i, j] != None:
+                              file.write(f"{tile.symbol}{tile.score}\n")
+                         else:
+                              file.write('\n')
 
      def on_move(self, event):
           if self.selected_tile and event.inaxes:
