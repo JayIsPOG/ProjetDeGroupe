@@ -33,5 +33,4 @@ class DictionnairePage(ctk.CTkFrame):
         #use find_valid_words
         self.text = self.textbox.get("0.0", "end")
         self.tk_textbox.delete("0.0", "end")
-        #self.tk_textbox.insert("0.0", Dictionary.is_word_valid(Dictionary, tuple(self.text[:-1])))
-        self.tk_textbox.insert("0.0", Dictionary.find_valid_words(self.text))
+        self.tk_textbox.insert("0.0", Dictionary.is_word_valid(Dictionary, tuple(self.text[:-1])))
