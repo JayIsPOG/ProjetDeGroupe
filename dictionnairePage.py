@@ -30,7 +30,12 @@ class DictionnairePage(ctk.CTkFrame):
         self.tk_textbox.configure(yscrollcommand=self.ctk_textbox_scrollbar.set)
 
     def readText(self):
+<<<<<<< Updated upstream
         #use find_valid_words
         self.text = self.textbox.get("0.0", "end")
         self.tk_textbox.delete("0.0", "end")
         self.tk_textbox.insert("0.0", Dictionary.is_word_valid(Dictionary, tuple(self.text[:-1])))
+=======
+        self.text = self.textbox.get("0.0", "end")
+        self.tk_textbox.insert("0.0", Dictionary.is_word_valid(tuple(self.text[:-1])))
+>>>>>>> Stashed changes

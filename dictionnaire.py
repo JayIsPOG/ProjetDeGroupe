@@ -31,6 +31,7 @@ class Dictionary():
                 if can_form:
                     found_words.add(word)
         return found_words
+<<<<<<< Updated upstream
     def is_word_valid(self, word):
         return word in VALID_WORDS
     def find_valid_words(self, letters):
@@ -38,3 +39,8 @@ class Dictionary():
         for word in VALID_WORDS:
             if letters in word:
                 words.add(word)
+=======
+    @staticmethod
+    def is_word_valid(word):
+        return word in VALID_WORDS
+>>>>>>> Stashed changes
