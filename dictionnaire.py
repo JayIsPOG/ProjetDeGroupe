@@ -2,11 +2,36 @@ from collections import Counter
 VALID_WORDS = set()
 with open("French ODS dictionary.txt", 'r') as f:
     for i in f:
+<<<<<<< Updated upstream
         VALID_WORDS.add(tuple(i[:-1]))
 
 class Dictionary():
     @staticmethod
     def find_valid_words(self, player_hand, valid_word_list = VALID_WORDS):
+=======
+        word = i.strip().upper()
+        letter_frequency = {}
+        VALID_WORDS.add(tuple(word))
+        for l in word:
+            index = ord(l) - ord('A')
+            if index in letter_frequency: letter_frequency[index]+=1
+            else: letter_frequency[index] = 1
+        compositions.append((word, letter_frequency.items()))
+class Dictionary():
+    @staticmethod
+    def find_valid_words(letters):
+        letter_count = np.zeros(26)
+        for l in letters: letter_count[ord(l.upper()) - ord('A')] += 1
+        available_words = []
+        for word, letter_frequency in compositions:
+            if all(letter_count[letter] >= frequency for letter, frequency in letter_frequency):
+                available_words.append(word)
+        return available_words
+    
+    def is_word_valid(self, word):
+        return word in VALID_WORDS
+    def find_valid_wordsJokers(self, player_hand, valid_word_list = VALID_WORDS):
+>>>>>>> Stashed changes
         hand_symbols = [tile.symbol for tile in player_hand]
         hand_counts = Counter(s for s in hand_symbols if s != '?')
         num_blanks = hand_symbols.count('?')
@@ -32,6 +57,7 @@ class Dictionary():
                     found_words.add(word)
         return found_words
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     def is_word_valid(self, word):
         return word in VALID_WORDS
     def find_valid_words(self, letters):
@@ -43,4 +69,6 @@ class Dictionary():
     @staticmethod
     def is_word_valid(word):
         return word in VALID_WORDS
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
