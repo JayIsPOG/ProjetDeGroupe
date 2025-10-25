@@ -39,7 +39,7 @@ class Player:
         self.hand += self.bag.get_tiles(self.hand_max_size - len(self.hand))
         self.hand_max_size = len(self.hand)
 
-    def clear_hand(self):
-        self.bag.tiles += self.hand # Mais tu va juste repiger les meme tiles...
-        self.hand = []
-        self.draw_tiles()
+    def redraw(self):
+        self.bag.tiles += self.hand
+        random.shuffle(self.bag.tiles)
+        self.hand = self.bag.get_tiles(self.hand_max_size)

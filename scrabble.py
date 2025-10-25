@@ -58,50 +58,46 @@ class Scrabble(ctk.CTkFrame):
           self.is_new = np.zeros((15, 15))
           self.selected_tile = None
           if file_name:
-               self.bag.tiles = []
-               self.players[0].hand = []
-               self.players[1].hand = []
-               self.tile_board = np.full((15, 15), None)
-               self.is_new = np.zeros((15, 15))
-               self.selected_tile = None
-               with open(file_name, 'r') as file: ## ajouter message erreur si file existe pas
-                    lines = [line for line in file]
-                    self.current_player = bool(lines[0].strip())
-                    self.players[0].score = int(lines[1].strip())
-                    self.players[1].score = int(lines[2].strip())
-                    self.is_first_turn = bool(lines[3].strip())
-                    index = 4
-                    while lines[index] != '\n':
-                         l = lines[index].strip()
-                         self.players[0].hand.append(Tile(l[0], int(l[1:])))
-                         index += 1
-                    self.players[0].hand_max_size = len(self.players[0].hand)
-                    index += 1
-                    while lines[index] != '\n':
-                         l = lines[index].strip()
-                         self.players[1].hand.append(Tile(l[0], int(l[1:])))
-                         index += 1
-                    self.players[1].hand_max_size = len(self.players[1].hand)
-                    index += 1
-                    for i in range(0, 15):
-                         for j in range(0, 15):
-                              if lines[index] != '\n':
-                                   l = lines[index].strip()
-                                   self.tile_board[i, j] = Tile(l[0], int(l[1:]))
-                                   self.letter.set_position((j + 0.5, i + 0.5))
-                                   self.letter.set_text(self.tile_board[i, j].symbol)
-                                   self.letter_score.set_position((j + 0.85, i+ 0.15))
-                                   self.letter_score.set_text(self.tile_board[i, j].score)
-                                   self.rect.set_xy((j, i))
-                                   self.ax.draw_artist(self.rect)
-                                   self.ax.draw_artist(self.letter_score)
-                                   self.ax.draw_artist(self.letter)
+               try:
+                    with open(file_name, 'r') as file: ## ajouter message erreur si file existe pas
+                         self.bag.tiles = []
+                         self.players[0].hand = []
+                         self.players[1].hand = []
+                         self.tile_board = np.full((15, 15), None)
+                         self.is_new = np.zeros((15, 15))
+                         self.selected_tile = None
+                         lines = [line for line in file]
+                         self.current_player = bool(lines[0].strip())
+                         self.players[0].score = int(lines[1].strip())
+                         self.players[1].score = int(lines[2].strip())
+                         self.is_first_turn = bool(lines[3].strip())
+                         index = 4
+                         while lines[index] != '\n':
+                              l = lines[index].strip()
+                              self.players[0].hand.append(Tile(l[0], int(l[1:])))
                               index += 1
-                    self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-                    for i in range(index, len(lines)):
-                         l = lines[i].strip()
-                         self.bag.tiles.append(Tile(l[0], int(l[1:])))
-                    self.bag.tiles_left = len(self.bag.tiles)
+                         self.players[0].hand_max_size = len(self.players[0].hand)
+                         index += 1
+                         while lines[index] != '\n':
+                              l = lines[index].strip()
+                              self.players[1].hand.append(Tile(l[0], int(l[1:])))
+                              index += 1
+                         self.players[1].hand_max_size = len(self.players[1].hand)
+                         index += 1
+                         for i in range(0, 15):
+                              for j in range(0, 15):
+                                   if lines[index] != '\n':
+                                        l = lines[index].strip()
+                                        self.tile_board[i, j] = Tile(l[0], int(l[1:]))
+                                   index += 1
+                         for i in range(index, len(lines)):
+                              l = lines[i].strip()
+                              self.bag.tiles.append(Tile(l[0], int(l[1:])))
+                         self.bag.tiles_left = len(self.bag.tiles)
+               except FileNotFoundError:
+                    print("Le fichier 'series.txt' n'a pas été trouvé.")
+               except Exception as e:
+                    print(f"Erreur lors de l'ouverture du fichier: {e}")
           self.create_widgets()
      def create_widgets(self):
           self.is_first_turn = True
@@ -131,20 +127,38 @@ class Scrabble(ctk.CTkFrame):
           self.canvas = FigureCanvasTkAgg(plt.gcf(), master=self)
           self.canvas.draw()
           self.canvas.get_tk_widget().grid(row=0, column=0, pady=(10,10))
+          
+          self.letter = self.ax.text(0.5, 0.5, '', ha="center", va="center", fontsize=14, color="black")
+          self.letter_score = self.ax.text(0.35, 0.35, '', ha="center", va="center", fontsize=5, color="black")
+          self.rect = plt.Rectangle((0, 0), 1, 1, facecolor = 'bisque', edgecolor = 'black')
+          self.ax.add_patch(self.rect)
 
+          for i in range(0, 15):
+               for j in range(0, 15):
+                    if self.tile_board[i, j]:
+                         self.letter.set_position((j + 0.5, i + 0.5))
+                         self.letter.set_text(self.tile_board[i, j].symbol)
+                         self.letter_score.set_position((j + 0.85, i+ 0.15))
+                         self.letter_score.set_text(self.tile_board[i, j].score)
+                         self.rect.set_xy((j, i))
+                         self.ax.draw_artist(self.rect)
+                         self.ax.draw_artist(self.letter_score)
+                         self.ax.draw_artist(self.letter)
 
           self.background = self.canvas.copy_from_bbox(self.ax.bbox)
           self.selected = plt.Rectangle((0, 0), 1, 1, facecolor = 'none', edgecolor = 'black')
-          self.rect = plt.Rectangle((0, 0), 1, 1, facecolor = 'bisque', edgecolor = 'black')
           self.ax.add_patch(self.selected)
-          self.ax.add_patch(self.rect)
-          self.letter = self.ax.text(0.5, 0.5, '', ha="center", va="center", fontsize=14, color="black")
-          self.letter_score = self.ax.text(0.35, 0.35, '', ha="center", va="center", fontsize=5, color="black")
 
           self.fig.canvas.mpl_connect("motion_notify_event", self.on_move)
           self.fig.canvas.mpl_connect("button_press_event", self.on_click)
           self.fig.canvas.mpl_connect("button_release_event", self.on_release)
-          self.fig.canvas.mpl_connect("key_press_event", self.key_press)
+
+          self.skip_turn = ctk.CTkButton(self, text = "Passer son tour", height=20, width=40, command=self.skip)
+          self.skip_turn.place(x = 0, y = 50)
+          self.skip_turn = ctk.CTkButton(self, text = "Remettre tuiles dans main", height=20, width=40, command=self.return_to_hand_update)
+          self.skip_turn.place(x = 0, y = 70)
+          self.skip_turn = ctk.CTkButton(self, text = "Valider mot", height=20, width=40, command=self.finish_turn)
+          self.skip_turn.place(x = 0, y = 90)
 
           self.score_labels = (ctk.CTkLabel(self, text = f"Score du joueur 1 : {self.players[0].score}"), ctk.CTkLabel(self, text = f"Score du joueur 2 : {self.players[1].score}"))
           self.score_labels[self.current_player].configure(text_color = 'red')
@@ -153,7 +167,25 @@ class Scrabble(ctk.CTkFrame):
 
           self.draw_board()
 
-          
+     def return_to_hand(self):
+          for i in range(0, 15):
+               for j in range(0, 15):
+                    if self.is_new[i, j]:
+                         self.is_new[i, j] = False
+                         self.players[self.current_player].hand.append(self.tile_board[i, j])
+                         self.tile_board[i, j] = None
+     def return_to_hand_update(self):
+          self.return_to_hand()
+          self.draw_board()
+
+     def skip(self):
+          self.return_to_hand()
+          self.players[self.current_player].redraw()
+          self.score_labels[self.current_player].configure(text_color = 'black')
+          self.current_player = not self.current_player
+          self.score_labels[self.current_player].configure(text_color = 'red')
+          self.draw_board()
+
      def on_click(self, event):
           if event.inaxes:
                x = int(event.xdata)
@@ -166,6 +198,7 @@ class Scrabble(ctk.CTkFrame):
                     self.tile_board[y, x] = None
                     self.is_new[y, x] = False
                self.draw_board(event)
+          
 
      def draw_board(self, event = None):
           self.fig.canvas.restore_region(self.background)
@@ -222,8 +255,7 @@ class Scrabble(ctk.CTkFrame):
                self.draw_board(event)
                self.canvas.blit(self.ax.bbox)
 
-     def key_press(self, event):
-          if event.key == 'enter':
+     def finish_turn(self):
                score = self.calc_score()
                if score:
                     self.fig.canvas.restore_region(self.background)
@@ -247,16 +279,9 @@ class Scrabble(ctk.CTkFrame):
                     self.score_labels[self.current_player].configure(text_color = 'red')
                     self.is_first_turn = False
                     self.draw_board()
-          elif event.key == 's':
-               self.save_game("game.txt")
 
      def save_game(self, file_name):
-          for i in range(0, 15):
-               for j in range(0, 15):
-                    if self.is_new[i, j]:
-                         self.is_new[i, j] = False
-                         self.players[self.current_player].hand.append(self.tile_board[i, j])
-                         self.tile_board[i, j] = None
+          self.return_to_hand()
           with open(file_name, 'w') as file:
                file.write(f"{self.current_player}\n")
                file.write(f"{self.players[0].score}\n")
