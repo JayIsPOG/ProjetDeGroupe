@@ -48,17 +48,68 @@ letter_multiplier = np.array([
      [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
      ])
 class Scrabble(ctk.CTkFrame):
-     def __init__(self, master=None):
+     def __init__(self, master=None, file_name = None):
           super().__init__(master)
           self.master = master
+          self.bag = Bag()
+          self.players = (Player(self.bag, ""), Player(self.bag, ""))
+          self.current_player = False
+          self.tile_board = np.full((15, 15), None)
+          self.is_new = np.zeros((15, 15))
+          self.selected_tile = None
+          if file_name:
+               self.bag.tiles = []
+               self.players[0].hand = []
+               self.players[1].hand = []
+               self.tile_board = np.full((15, 15), None)
+               self.is_new = np.zeros((15, 15))
+               self.selected_tile = None
+               with open(file_name, 'r') as file: ## ajouter message erreur si file existe pas
+                    lines = [line for line in file]
+                    self.current_player = bool(lines[0].strip())
+                    self.players[0].score = int(lines[1].strip())
+                    self.players[1].score = int(lines[2].strip())
+                    self.is_first_turn = bool(lines[3].strip())
+                    index = 4
+                    while lines[index] != '\n':
+                         l = lines[index].strip()
+                         self.players[0].hand.append(Tile(l[0], int(l[1:])))
+                         index += 1
+                    self.players[0].hand_max_size = len(self.players[0].hand)
+                    index += 1
+                    while lines[index] != '\n':
+                         l = lines[index].strip()
+                         self.players[1].hand.append(Tile(l[0], int(l[1:])))
+                         index += 1
+                    self.players[1].hand_max_size = len(self.players[1].hand)
+                    index += 1
+                    for i in range(0, 15):
+                         for j in range(0, 15):
+                              if lines[index] != '\n':
+                                   l = lines[index].strip()
+                                   self.tile_board[i, j] = Tile(l[0], int(l[1:]))
+                                   self.letter.set_position((j + 0.5, i + 0.5))
+                                   self.letter.set_text(self.tile_board[i, j].symbol)
+                                   self.letter_score.set_position((j + 0.85, i+ 0.15))
+                                   self.letter_score.set_text(self.tile_board[i, j].score)
+                                   self.rect.set_xy((j, i))
+                                   self.ax.draw_artist(self.rect)
+                                   self.ax.draw_artist(self.letter_score)
+                                   self.ax.draw_artist(self.letter)
+                              index += 1
+                    self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+                    for i in range(index, len(lines)):
+                         l = lines[i].strip()
+                         self.bag.tiles.append(Tile(l[0], int(l[1:])))
+                    self.bag.tiles_left = len(self.bag.tiles)
           self.create_widgets()
      def create_widgets(self):
           self.is_first_turn = True
-          self.fig, self.ax = plt.subplots(figsize=(8, 8))
+          self.fig, self.ax = plt.subplots(figsize=(9, 9))
           self.ax.set_aspect("equal")
           self.ax.set_xlim(0, 15)
           self.ax.set_ylim(-1, 15)
-          self.ax.axis("off") #Note for later : font size will have to adapt to the size of the window
+          self.ax.axis("off")
           for i in range(15):
                for j in range(15):
                     if(letter_multiplier[i, j] == 2): 
@@ -90,18 +141,13 @@ class Scrabble(ctk.CTkFrame):
           self.letter = self.ax.text(0.5, 0.5, '', ha="center", va="center", fontsize=14, color="black")
           self.letter_score = self.ax.text(0.35, 0.35, '', ha="center", va="center", fontsize=5, color="black")
 
-          self.bag = Bag()
-          self.players = (Player(self.bag, ""), Player(self.bag, ""))
-          self.current_player = False
-          self.tile_board = np.full((15, 15), None)
-          self.is_new = np.zeros((15, 15))
-          self.selected_tile = None
           self.fig.canvas.mpl_connect("motion_notify_event", self.on_move)
           self.fig.canvas.mpl_connect("button_press_event", self.on_click)
           self.fig.canvas.mpl_connect("button_release_event", self.on_release)
           self.fig.canvas.mpl_connect("key_press_event", self.key_press)
 
-          self.score_labels = (ctk.CTkLabel(self, text = "Score du joueur 1 : 0"), ctk.CTkLabel(self, text = "Score du joueur 2 : 0"))
+          self.score_labels = (ctk.CTkLabel(self, text = f"Score du joueur 1 : {self.players[0].score}"), ctk.CTkLabel(self, text = f"Score du joueur 2 : {self.players[1].score}"))
+          self.score_labels[self.current_player].configure(text_color = 'red')
           self.score_labels[0].place(x=0, y=0)
           self.score_labels[1].place(x=0, y=20)
 
@@ -196,15 +242,13 @@ class Scrabble(ctk.CTkFrame):
                     self.background = self.canvas.copy_from_bbox(self.ax.bbox) # rend les tuiles impregnier dans lecran
                     self.players[self.current_player].draw_tiles()
                     self.players[self.current_player].score += score
-                    self.score_labels[self.current_player].configure(text = f"Score du joueur {self.current_player + 1} : {self.players[self.current_player].score}")
+                    self.score_labels[self.current_player].configure(text = f"Score du joueur {self.current_player + 1} : {self.players[self.current_player].score}", text_color = 'black')
                     self.current_player = not self.current_player
+                    self.score_labels[self.current_player].configure(text_color = 'red')
                     self.is_first_turn = False
                     self.draw_board()
-               else: print("Invalid Word!")
           elif event.key == 's':
                self.save_game("game.txt")
-          elif event.key == 'l':
-               self.load_file("game.txt")
 
      def save_game(self, file_name):
           for i in range(0, 15):
@@ -215,47 +259,19 @@ class Scrabble(ctk.CTkFrame):
                          self.tile_board[i, j] = None
           with open(file_name, 'w') as file:
                file.write(f"{self.current_player}\n")
+               file.write(f"{self.players[0].score}\n")
+               file.write(f"{self.players[1].score}\n")
+               file.write(f"{self.is_first_turn}\n")
                for player in self.players:
                     for tile in player.hand:
                          file.write(f"{tile.symbol}{tile.score}\n")
                     file.write('\n')
                for i in range(0, 15):
                     for j in range(0, 15):
-                         if self.tile_board[i, j] != None: file.write(f"{tile.symbol}{tile.score}\n")
+                         if self.tile_board[i, j] != None: file.write(f"{self.tile_board[i, j].symbol}{self.tile_board[i, j].score}\n")
                          else: file.write('\n')
                for tile in self.bag.tiles:
                     file.write(f"{tile.symbol}{tile.score}\n")
-     def load_file(self, file_name):
-          self.bag.tiles = []
-          self.players[0].hand = []
-          self.players[1].hand = []
-          self.tile_board = np.full((15, 15), None)
-          self.is_new = np.zeros((15, 15))
-          self.selected_tile = None
-          with open(file_name, 'r') as file: ## ajouter message erreur si file existe pas
-               lines = [line for line in file]
-               self.current_player = bool(lines[0].strip())
-               index = 1
-               while lines[index] != '\n':
-                    l = lines[index].strip()
-                    self.players[0].hand.append(Tile(l[0], int(l[1:])))
-                    index += 1
-               index += 1
-               while lines[index] != '\n':
-                    l = lines[index].strip()
-                    self.players[1].hand.append(Tile(l[0], int(l[1:])))
-                    index += 1
-               index += 1
-               for i in range(0, 15):
-                    for j in range(0, 15):
-                         if lines[index] != '\n':
-                              l = lines[index].strip()
-                              self.tile_board[i, j] = Tile(l[0], int(l[1:]))
-                         index += 1
-               for i in range(index, len(lines)):
-                    l = lines[i].strip()
-                    self.bag.tiles.append(Tile(l[0], int(l[1:])))
-               
 
 
           

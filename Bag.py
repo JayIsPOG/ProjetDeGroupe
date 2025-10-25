@@ -40,6 +40,6 @@ class Player:
         self.hand_max_size = len(self.hand)
 
     def clear_hand(self):
-        self.bag.append(self.hand)
+        self.bag.tiles += self.hand # Mais tu va juste repiger les meme tiles...
         self.hand = []
         self.draw_tiles()
