@@ -12,6 +12,7 @@ class MainApp(ctk.CTk):
         self.title("Application Principale")
         self.show_accueil()
         self.protocol("WM_DELETE_WINDOW", self.quit)
+        print('hi')
     def show_accueil(self):
         self.clear_main_frame()
         self.accueil = Accueil(master=self)
