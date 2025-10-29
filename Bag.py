@@ -4,7 +4,6 @@ class Tile:
     def __init__(self, symbol, score):
         self.symbol = symbol
         self.score = score
-        self.is_selected = False
     def __repr__(self):
         return f"{self.symbol}({self.score})"
 

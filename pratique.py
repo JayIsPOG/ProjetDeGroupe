@@ -14,34 +14,41 @@ class Pratique(ctk.CTkFrame):
         self.create_widgets()
   
     def create_widgets(self):
-
         self.grid(row=0, column=0, padx=40, pady=40, sticky="nsew")
-        xpos = 1 
-        ypos = 0
-        compteur = -1
-        for tiles in self.player.hand:
-            print(tiles.symbol)
-            compteur += 1
-            if compteur ==  4 :
-                if xpos < 3 :
-                    xpos += 1
-                    ypos = 0
-            ypos += 1
-            self.letters = ( ctk.CTkButton(self, text=tiles.symbol, fg_color=self.color,width=45,height=45,command=lambda t=tiles: self.select_letter(t)))
+        self.letter_buttons = {}
 
-            self.letters.grid(row=ypos, column=xpos, pady=(20,20), padx = (20,20))
+        for i in range(7):
+            letter = self.player.hand[i].symbol
+            
+            if i < 4:
+                row_num = i
+                col_num = 1
+            else:
+                row_num = i - 4 
+                col_num = 2
+            button = ctk.CTkButton(
+                self, 
+                text=letter, 
+                fg_color=self.color,
+                width=45,
+                height=45,
+            )
+            button.configure(command=lambda t=letter, b=button: self.select_letter(t, b))
+            button.grid(row=row_num, column=col_num, pady=(20,20), padx = (20,20))
+            self.letter_buttons[button] = False
 
+        self.confirmer = ctk.CTkButton(self,text = "Confirmer le mot",fg_color="red",width = 60,height = 60)
+        self.confirmer.grid(row = 1,column = 4,pady=(20,20), padx = (20,20))
         self.word = ctk.CTkLabel(self, text=self.word_text, fg_color="transparent")
         self.word.grid(row=1, column=3, pady=(20,20), padx = (100,100))
-
-    def select_letter(self,letter):
-        if not letter.is_selected:
-            self.word_text += letter.symbol
+    def select_letter(self,letter,button):
+        if self.letter_buttons[button] == False:
+            self.letter_buttons[button] = True
+            self.word_text += letter
             self.word.configure(text = self.word_text)
-            self.letters.configure(fg_color = '#343434')
-            letter.is_selected = True
-        else :
-            letter.is_selected = False
-            self.word_text = self.word_text.replace(letter.symbol, '', 1)
+            button.configure(fg_color = '#343434')
+        elif self.letter_buttons[button] == True:
+            self.letter_buttons[button] = False
+            self.word_text = self.word_text.replace(letter,"",count = 1)
             self.word.configure(text = self.word_text)
-            self.letters.configure(fg_color = self.color)
+            button.configure(fg_color = self.color)
