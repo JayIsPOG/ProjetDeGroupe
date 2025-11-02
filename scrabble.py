@@ -49,52 +49,12 @@ class Scrabble(ctk.CTkFrame):
           super().__init__(master)
           self.master = master
           self.bag = Bag()
-          self.players = (Player(self.bag, ""), Player(self.bag, ""))
+          self.players = (Player(self.bag, "Joueur 1"), Player(self.bag, "Joueur 2"))
           self.current_player = False
           self.tile_board = np.full((15, 15), None)
           self.is_new = np.zeros((15, 15))
           self.selected_tile = None
-          if file_name:
-               try:
-                    with open(file_name, 'r') as file: ## ajouter message erreur si file existe pas
-                         self.bag.tiles = []
-                         self.players[0].hand = []
-                         self.players[1].hand = []
-                         self.tile_board = np.full((15, 15), None)
-                         self.is_new = np.zeros((15, 15))
-                         self.selected_tile = None
-                         lines = [line for line in file]
-                         self.current_player = bool(lines[0].strip())
-                         self.players[0].score = int(lines[1].strip())
-                         self.players[1].score = int(lines[2].strip())
-                         self.is_first_turn = bool(lines[3].strip())
-                         index = 4
-                         while lines[index] != '\n':
-                              l = lines[index].strip()
-                              self.players[0].hand.append(Tile(l[0], int(l[1:])))
-                              index += 1
-                         self.players[0].hand_max_size = len(self.players[0].hand)
-                         index += 1
-                         while lines[index] != '\n':
-                              l = lines[index].strip()
-                              self.players[1].hand.append(Tile(l[0], int(l[1:])))
-                              index += 1
-                         self.players[1].hand_max_size = len(self.players[1].hand)
-                         index += 1
-                         for i in range(0, 15):
-                              for j in range(0, 15):
-                                   if lines[index] != '\n':
-                                        l = lines[index].strip()
-                                        self.tile_board[i, j] = Tile(l[0], int(l[1:]))
-                                   index += 1
-                         for i in range(index, len(lines)):
-                              l = lines[i].strip()
-                              self.bag.tiles.append(Tile(l[0], int(l[1:])))
-                         self.bag.tiles_left = len(self.bag.tiles)
-               except FileNotFoundError:
-                    print("Le fichier 'series.txt' n'a pas été trouvé.")
-               except Exception as e:
-                    print(f"Erreur lors de l'ouverture du fichier: {e}")
+          if file_name: self.load_game(file_name)
           self.create_widgets()
      def create_widgets(self):
           self.is_first_turn = True
@@ -157,13 +117,50 @@ class Scrabble(ctk.CTkFrame):
           self.skip_turn = ctk.CTkButton(self, text = "Valider mot", height=20, width=40, command=self.finish_turn)
           self.skip_turn.place(x = 0, y = 90)
 
-          self.score_labels = (ctk.CTkLabel(self, text = f"Score de {self.players[0].name} : {self.players[0].score}"), ctk.CTkLabel(self, text = f"Score de {self.players[0].name} : {self.players[1].score}"))
+          self.score_labels = (ctk.CTkLabel(self, text = f"Score de {self.players[0].name} : {self.players[0].score}"), ctk.CTkLabel(self, text = f"Score de {self.players[1].name} : {self.players[1].score}"))
           self.score_labels[self.current_player].configure(text_color = 'red')
           self.score_labels[0].place(x=0, y=0)
           self.score_labels[1].place(x=0, y=20)
 
           self.draw_board()
-
+     def load_game(self, file_name):
+          try:
+               with open(file_name, 'r') as file:
+                    self.bag.tiles = []
+                    self.players[0].hand = []
+                    self.players[1].hand = []
+                    lines = [line for line in file]
+                    self.current_player = bool(lines[0].strip())
+                    self.players[0].score = int(lines[1].strip())
+                    self.players[1].score = int(lines[2].strip())
+                    self.is_first_turn = bool(lines[3].strip())
+                    index = 4
+                    while lines[index] != '\n':
+                         l = lines[index].strip()
+                         self.players[0].hand.append(Tile(l[0], int(l[1:])))
+                         index += 1
+                    self.players[0].hand_max_size = len(self.players[0].hand)
+                    index += 1
+                    while lines[index] != '\n':
+                         l = lines[index].strip()
+                         self.players[1].hand.append(Tile(l[0], int(l[1:])))
+                         index += 1
+                    self.players[1].hand_max_size = len(self.players[1].hand)
+                    index += 1
+                    for i in range(0, 15):
+                         for j in range(0, 15):
+                              if lines[index] != '\n':
+                                   l = lines[index].strip()
+                                   self.tile_board[i, j] = Tile(l[0], int(l[1:]))
+                              index += 1
+                    for i in range(index, len(lines)):
+                         l = lines[i].strip()
+                         self.bag.tiles.append(Tile(l[0], int(l[1:])))
+                    self.bag.tiles_left = len(self.bag.tiles)
+          except FileNotFoundError:
+               print("Le fichier 'series.txt' n'a pas été trouvé.")
+          except Exception as e:
+               print(f"Erreur lors de l'ouverture du fichier: {e}")
      def return_to_hand(self):
           for i in range(0, 15):
                for j in range(0, 15):
@@ -311,7 +308,7 @@ class Scrabble(ctk.CTkFrame):
      def calc_score(self):
           tiles_placed = self.players[self.current_player].hand_max_size - len(self.players[self.current_player].hand)
           for i in range(14, 0, -1):
-               for j in range(0, 15): 
+               for j in range(0, 15): # Trouve la première nouvelle lettre par une lecture de gauche a droite, de haut en bas
                     if self.is_new[i, j]:
                          total_score = 0
                          isConnected = False
@@ -321,7 +318,7 @@ class Scrabble(ctk.CTkFrame):
                          while xs < 15 and self.tile_board[i, xs]:
                               horizontal_num += self.is_new[i, xs]
                               xs += 1
-                         
+
                          vertical_num = 0
                          ys = i - 1
                          while ys >= 0 and self.tile_board[ys, j]:
@@ -329,7 +326,7 @@ class Scrabble(ctk.CTkFrame):
                               ys -= 1
                          
                          if horizontal_num:
-                              if horizontal_num != tiles_placed - 1: return False
+                              if horizontal_num != tiles_placed - 1: return False#vérifie si toutes les tuiles sont dans le même axe
                               current_score = 0
                               current_word = []
                               word_multiplier = 1
@@ -399,10 +396,10 @@ class Scrabble(ctk.CTkFrame):
                                    ys -= 1
                               if Dictionary().is_word_valid(tuple(current_word)): total_score += current_score * word_multiplier
                               else: return False
-                         else: #placed a single tile, so we will only check how others intersect with it, maybe put the intersection in functions, we repeat a lot...
+                         else:
                               if tiles_placed != 1: return False
                               ys, xs = i, j
-                              if (xs < 14 and self.tile_board[ys, xs + 1]) or (xs > 0 and self.tile_board[ys, xs - 1]):
+                              if (xs < 14 and self.tile_board[ys, xs + 1]) or (xs > 0 and self.tile_board[ys, xs - 1]): # si une seule tuile est placée, on regarde ses intersection de gauche-droite et de haut-bas
                                    isConnected = True
                                    intersecting_score = self.tile_board[ys, xs].score * letter_multiplier[ys, xs]
                                    intersecting_word = [self.tile_board[ys, xs].symbol]
