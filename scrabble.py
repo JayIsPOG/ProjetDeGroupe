@@ -8,12 +8,9 @@ import customtkinter as ctk
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# ajouter une fonction pour flush la main pis repiger au cas ou aucun mot son possibles
-# save and load files et sauvegarder les scores
 # regarder si sac est vide pour finir la partie
-# afficher qui est le joueur actuel
 
-word_score = np.array([
+score_multiplier = np.array([
      [3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3],
      [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
      [1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1],
@@ -114,10 +111,10 @@ class Scrabble(ctk.CTkFrame):
                     elif(letter_multiplier[i, j] == 3): 
                          self.ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='dodgerblue', edgecolor="white"))
                          self.ax.text(j + 0.5, i + 0.5, 'LETTRE\nCOMPTE\nTRIPLE', ha="center", va="center", fontsize=5, color="black")
-                    elif(word_score[i, j] == 2): 
+                    elif(score_multiplier[i, j] == 2): 
                          self.ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='tomato', edgecolor="white"))
                          if(i != 7 != j): self.ax.text(j + 0.5, i + 0.5, 'MOT\nCOMPTE\nDOUBLE', ha="center", va="center", fontsize=5, color="black")
-                    elif(word_score[i, j] == 3): 
+                    elif(score_multiplier[i, j] == 3): 
                          self.ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='red', edgecolor="white"))
                          self.ax.text(j + 0.5, i + 0.5, 'MOT\nCOMPTE\nTRIPLE', ha="center", va="center", fontsize=5, color="black")
                     else: 
@@ -160,7 +157,7 @@ class Scrabble(ctk.CTkFrame):
           self.skip_turn = ctk.CTkButton(self, text = "Valider mot", height=20, width=40, command=self.finish_turn)
           self.skip_turn.place(x = 0, y = 90)
 
-          self.score_labels = (ctk.CTkLabel(self, text = f"Score du joueur 1 : {self.players[0].score}"), ctk.CTkLabel(self, text = f"Score du joueur 2 : {self.players[1].score}"))
+          self.score_labels = (ctk.CTkLabel(self, text = f"Score de {self.players[0].name} : {self.players[0].score}"), ctk.CTkLabel(self, text = f"Score de {self.players[0].name} : {self.players[1].score}"))
           self.score_labels[self.current_player].configure(text_color = 'red')
           self.score_labels[0].place(x=0, y=0)
           self.score_labels[1].place(x=0, y=20)
@@ -274,10 +271,14 @@ class Scrabble(ctk.CTkFrame):
                     self.background = self.canvas.copy_from_bbox(self.ax.bbox) # rend les tuiles impregnier dans lecran
                     self.players[self.current_player].draw_tiles()
                     self.players[self.current_player].score += score
-                    self.score_labels[self.current_player].configure(text = f"Score du joueur {self.current_player + 1} : {self.players[self.current_player].score}", text_color = 'black')
+                    self.score_labels[self.current_player].configure(text = f"Score de {self.players[self.current_player].name} : {self.players[self.current_player].score}", text_color = 'black')
                     self.current_player = not self.current_player
                     self.score_labels[self.current_player].configure(text_color = 'red')
                     self.is_first_turn = False
+                    if all(len(player.hand) == 0 for player in self.players):
+                         fin = ctk.CTkButton(self,text = f"{self.players[self.players[0].score < self.players[1].score].name} a gangier !\n les scores finaux sont : \n{self.players[0].name} : {self.players[0].score}\n{self.players[1].name} : {self.players[1].score}\n\nCliquez pour retourner a l'acceuil",fg_color="#747ACE",width = 400,height = 400,command = lambda:self.recommencer_pratique())
+                         fin.place(relx=0.5, rely=0.5, anchor="center") # Exemple: centré
+                         fin.lift()
                     self.draw_board()
 
      def save_game(self, file_name):
@@ -320,42 +321,41 @@ class Scrabble(ctk.CTkFrame):
                          while xs < 15 and self.tile_board[i, xs]:
                               horizontal_num += self.is_new[i, xs]
                               xs += 1
-                         if 0 < horizontal_num < tiles_placed - 1: return False #on regardes si toutes les tuiles placees sont dans le meme axe
                          
                          vertical_num = 0
-                         ys = j + 1
-                         while ys < 15 and self.tile_board[ys, j]:
+                         ys = i - 1
+                         while ys >= 0 and self.tile_board[ys, j]:
                               vertical_num += self.is_new[ys, j]
-                              ys += 1
-                         if 0 < vertical_num < tiles_placed - 1: return False
+                              ys -= 1
                          
                          if horizontal_num:
+                              if horizontal_num != tiles_placed - 1: return False
                               current_score = 0
                               current_word = []
                               word_multiplier = 1
                               ys, xs = i, j
-                              while xs > 0 and self.tile_board[ys, xs - 1]: xs -= 1 # find the start of the word, can be made faster if use same strat as intersect word, but this is cleaner
-                              while xs < 15 and self.tile_board[ys, xs]: # read the word
+                              while xs > 0 and self.tile_board[ys, xs - 1]: xs -= 1 # trouver le debut du mot
+                              while xs < 15 and self.tile_board[ys, xs]: # lecture du mot
                                    current_word.append(self.tile_board[ys, xs].symbol)
                                    if self.is_new[ys, xs]:
-                                        word_multiplier *= word_score[ys, xs]
+                                        word_multiplier *= score_multiplier[ys, xs]
                                         current_score += self.tile_board[ys, xs].score * letter_multiplier[ys, xs]
-                                        if (ys < 14 and self.tile_board[ys + 1, xs]) or (ys > 0 and self.tile_board[ys - 1, xs]):
+                                        if (ys < 14 and self.tile_board[ys + 1, xs]) or (ys > 0 and self.tile_board[ys - 1, xs]): # regarde pour un mot qui intersecte
                                              isConnected = True
                                              intersecting_score = self.tile_board[ys, xs].score * letter_multiplier[ys, xs]
-                                             intersecting_word = []
+                                             intersecting_word = [self.tile_board[ys, xs].symbol]
                                              y = ys + 1
                                              while y < 15 and self.tile_board[y, xs]:
-                                                  intersecting_word += self.tile_board[y, xs].symbol
+                                                  intersecting_word.append(self.tile_board[y, xs].symbol)
                                                   intersecting_score += self.tile_board[y, xs].score
                                                   y += 1
-                                             intersecting_word = intersecting_word[::-1] + [self.tile_board[ys, xs].symbol]
+                                             intersecting_word = intersecting_word[::-1]
                                              y = ys - 1
                                              while y >= 0 and self.tile_board[y, xs]:
-                                                  intersecting_word += self.tile_board[y, xs].symbol
+                                                  intersecting_word.append(self.tile_board[y, xs].symbol)
                                                   intersecting_score += self.tile_board[y, xs].score
                                                   y -= 1
-                                             if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
+                                             if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * score_multiplier[ys, xs]
                                              else: return False
                                    else:
                                         isConnected = True
@@ -365,6 +365,7 @@ class Scrabble(ctk.CTkFrame):
                               else: return False
 
                          elif vertical_num:
+                              if vertical_num != tiles_placed - 1: return False
                               current_score = 0
                               current_word = []
                               word_multiplier = 1
@@ -373,24 +374,24 @@ class Scrabble(ctk.CTkFrame):
                               while ys >= 0 and self.tile_board[ys, xs]: # read the word
                                    current_word.append(self.tile_board[ys, xs].symbol)
                                    if self.is_new[ys, xs]:
-                                        word_multiplier *= word_score[ys, xs]
+                                        word_multiplier *= score_multiplier[ys, xs]
                                         current_score += self.tile_board[ys, xs].score * letter_multiplier[ys, xs]
                                         if (xs < 14 and self.tile_board[ys, xs + 1]) or (xs > 0 and self.tile_board[ys, xs - 1]):
                                              isConnected = True
                                              intersecting_score = self.tile_board[ys, xs].score * letter_multiplier[ys, xs]
-                                             intersecting_word = []
+                                             intersecting_word = [self.tile_board[ys, xs].symbol]
                                              x = xs - 1
                                              while x >= 0 and self.tile_board[ys, x]:
-                                                  intersecting_word += self.tile_board[ys, x].symbol
+                                                  intersecting_word.append(self.tile_board[ys, x].symbol)
                                                   intersecting_score += self.tile_board[ys, x].score
                                                   x -= 1
-                                             intersecting_word = intersecting_word[::-1] + [self.tile_board[ys, xs].symbol]
+                                             intersecting_word = intersecting_word[::-1]
                                              x = xs + 1
                                              while x < 15 and self.tile_board[ys, x]:
-                                                  intersecting_word += self.tile_board[ys, x].symbol
+                                                  intersecting_word.append(self.tile_board[ys, x].symbol)
                                                   intersecting_score += self.tile_board[ys, x].score
                                                   x += 1
-                                             if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
+                                             if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * score_multiplier[ys, xs]
                                              else: return False
                                    else:
                                         isConnected = True
@@ -399,41 +400,42 @@ class Scrabble(ctk.CTkFrame):
                               if Dictionary().is_word_valid(tuple(current_word)): total_score += current_score * word_multiplier
                               else: return False
                          else: #placed a single tile, so we will only check how others intersect with it, maybe put the intersection in functions, we repeat a lot...
+                              if tiles_placed != 1: return False
                               ys, xs = i, j
                               if (xs < 14 and self.tile_board[ys, xs + 1]) or (xs > 0 and self.tile_board[ys, xs - 1]):
                                    isConnected = True
                                    intersecting_score = self.tile_board[ys, xs].score * letter_multiplier[ys, xs]
-                                   intersecting_word = []
+                                   intersecting_word = [self.tile_board[ys, xs].symbol]
                                    x = xs - 1
                                    while x >= 0 and self.tile_board[ys, x]:
-                                        intersecting_word += self.tile_board[ys, x].symbol
+                                        intersecting_word.append(self.tile_board[ys, x].symbol)
                                         intersecting_score += self.tile_board[ys, x].score
                                         x -= 1
-                                   intersecting_word = intersecting_word[::-1] + [self.tile_board[ys, xs].symbol]
+                                   intersecting_word = intersecting_word[::-1]
                                    x = xs + 1
                                    while x < 15 and self.tile_board[ys, x]:
-                                        intersecting_word += self.tile_board[ys, x].symbol
+                                        intersecting_word.append(self.tile_board[ys, x].symbol)
                                         intersecting_score += self.tile_board[ys, x].score
                                         x += 1
-                                   if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
+                                   if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * score_multiplier[ys, xs]
                                    else: return False
 
                               if (ys < 14 and self.tile_board[ys + 1, xs]) or (ys > 0 and self.tile_board[ys - 1, xs]):
                                    isConnected = True
                                    intersecting_score = self.tile_board[ys, xs].score * letter_multiplier[ys, xs]
-                                   intersecting_word = []
+                                   intersecting_word = [self.tile_board[ys, xs].symbol]
                                    y = ys + 1
                                    while y < 15 and self.tile_board[y, xs]:
-                                        intersecting_word += self.tile_board[y, xs].symbol
+                                        intersecting_word.append(self.tile_board[y, xs].symbol)
                                         intersecting_score += self.tile_board[y, xs].score
                                         y += 1
-                                   intersecting_word = intersecting_word[::-1] + [self.tile_board[ys, xs].symbol]
+                                   intersecting_word = intersecting_word[::-1]
                                    y = ys - 1
                                    while y >= 0 and self.tile_board[y, xs]:
-                                        intersecting_word += self.tile_board[y, xs].symbol
+                                        intersecting_word.append(self.tile_board[y, xs].symbol)
                                         intersecting_score += self.tile_board[y, xs].score
                                         y -= 1
-                                   if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * word_score[ys, xs]
+                                   if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * score_multiplier[ys, xs]
                                    else: return False
                          if tiles_placed == 7: total_score += 50
                          if isConnected or (self.is_first_turn and self.is_new[7, 7]): return total_score

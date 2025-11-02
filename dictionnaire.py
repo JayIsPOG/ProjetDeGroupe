@@ -17,10 +17,10 @@ class Dictionary():
     def find_valid_words(letters):
         letter_count = np.zeros(26)
         for l in letters: letter_count[ord(l.upper()) - ord('A')] += 1
-        available_words = []
+        available_words = set()
         for word, letter_frequency in compositions:
             if all(letter_count[letter] >= frequency for letter, frequency in letter_frequency):
-                available_words.append(word)
+                available_words.add(word)
         return available_words
     
     def is_word_valid(self, word):
