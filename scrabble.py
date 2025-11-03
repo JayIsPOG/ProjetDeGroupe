@@ -8,6 +8,9 @@ import customtkinter as ctk
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+
+# appret ouvrir un fichier, sa met joueur 2 automatiquement
+# mots aux extremites ne fonctionnes pas
 # regarder si sac est vide pour finir la partie
 
 score_multiplier = np.array([
@@ -130,10 +133,10 @@ class Scrabble(ctk.CTkFrame):
                     self.players[0].hand = []
                     self.players[1].hand = []
                     lines = [line for line in file]
-                    self.current_player = bool(lines[0].strip())
+                    self.current_player = int(lines[0].strip())
                     self.players[0].score = int(lines[1].strip())
                     self.players[1].score = int(lines[2].strip())
-                    self.is_first_turn = bool(lines[3].strip())
+                    self.is_first_turn = int(lines[3].strip())
                     index = 4
                     while lines[index] != '\n':
                          l = lines[index].strip()
@@ -281,10 +284,10 @@ class Scrabble(ctk.CTkFrame):
      def save_game(self, file_name):
           self.return_to_hand()
           with open(file_name, 'w') as file:
-               file.write(f"{self.current_player}\n")
+               file.write(f"{int(self.current_player)}\n")
                file.write(f"{self.players[0].score}\n")
                file.write(f"{self.players[1].score}\n")
-               file.write(f"{self.is_first_turn}\n")
+               file.write(f"{int(self.is_first_turn)}\n")
                for player in self.players:
                     for tile in player.hand:
                          file.write(f"{tile.symbol}{tile.score}\n")
@@ -307,7 +310,7 @@ class Scrabble(ctk.CTkFrame):
 
      def calc_score(self):
           tiles_placed = self.players[self.current_player].hand_max_size - len(self.players[self.current_player].hand)
-          for i in range(14, 0, -1):
+          for i in range(14, -1, -1):
                for j in range(0, 15): # Trouve la première nouvelle lettre par une lecture de gauche a droite, de haut en bas
                     if self.is_new[i, j]:
                          total_score = 0
