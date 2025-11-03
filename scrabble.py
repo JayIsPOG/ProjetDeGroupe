@@ -8,11 +8,6 @@ import customtkinter as ctk
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-
-# appret ouvrir un fichier, sa met joueur 2 automatiquement
-# mots aux extremites ne fonctionnes pas
-# regarder si sac est vide pour finir la partie
-
 score_multiplier = np.array([
      [3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3],
      [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
@@ -60,7 +55,6 @@ class Scrabble(ctk.CTkFrame):
           if file_name: self.load_game(file_name)
           self.create_widgets()
      def create_widgets(self):
-          self.is_first_turn = True
           self.fig, self.ax = plt.subplots(figsize=(9, 9))
           self.ax.set_aspect("equal")
           self.ax.set_xlim(0, 15)
@@ -136,8 +130,7 @@ class Scrabble(ctk.CTkFrame):
                     self.current_player = int(lines[0].strip())
                     self.players[0].score = int(lines[1].strip())
                     self.players[1].score = int(lines[2].strip())
-                    self.is_first_turn = int(lines[3].strip())
-                    index = 4
+                    index = 3
                     while lines[index] != '\n':
                          l = lines[index].strip()
                          self.players[0].hand.append(Tile(l[0], int(l[1:])))
@@ -274,7 +267,6 @@ class Scrabble(ctk.CTkFrame):
                     self.score_labels[self.current_player].configure(text = f"Score de {self.players[self.current_player].name} : {self.players[self.current_player].score}", text_color = 'black')
                     self.current_player = not self.current_player
                     self.score_labels[self.current_player].configure(text_color = 'red')
-                    self.is_first_turn = False
                     if all(len(player.hand) == 0 for player in self.players):
                          fin = ctk.CTkButton(self,text = f"{self.players[self.players[0].score < self.players[1].score].name} a gangier !\n les scores finaux sont : \n{self.players[0].name} : {self.players[0].score}\n{self.players[1].name} : {self.players[1].score}\n\nCliquez pour retourner a l'acceuil",fg_color="#747ACE",width = 400,height = 400,command = lambda:self.recommencer_pratique())
                          fin.place(relx=0.5, rely=0.5, anchor="center") # Exemple: centré
@@ -287,7 +279,6 @@ class Scrabble(ctk.CTkFrame):
                file.write(f"{int(self.current_player)}\n")
                file.write(f"{self.players[0].score}\n")
                file.write(f"{self.players[1].score}\n")
-               file.write(f"{int(self.is_first_turn)}\n")
                for player in self.players:
                     for tile in player.hand:
                          file.write(f"{tile.symbol}{tile.score}\n")
@@ -438,5 +429,5 @@ class Scrabble(ctk.CTkFrame):
                                    if Dictionary().is_word_valid(tuple(intersecting_word)): total_score += intersecting_score * score_multiplier[ys, xs]
                                    else: return False
                          if tiles_placed == 7: total_score += 50
-                         if isConnected or (self.is_first_turn and self.is_new[7, 7]): return total_score
+                         if isConnected or self.is_new[7, 7]: return total_score # si aucun mot connecte, on regarde si le joueur a placer une tuile au millieu, car, au premier tour, on ne peut pas placer de mots qui se connectent, la seule maniere qu'un mot soit valide est si il est placer au millieu
                          return False
