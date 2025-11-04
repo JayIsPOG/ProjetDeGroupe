@@ -48,7 +48,7 @@ class Scrabble(ctk.CTkFrame):
           self.master = master
           self.bag = Bag()
           self.players = (Player(self.bag, "Joueur 1"), Player(self.bag, "Joueur 2"))
-          self.current_player = False
+          self.current_player = 0
           self.tile_board = np.full((15, 15), None)
           self.is_new = np.zeros((15, 15))
           self.selected_tile = None
