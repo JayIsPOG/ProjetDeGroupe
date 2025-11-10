@@ -1,5 +1,6 @@
 from collections import Counter
 import numpy as np
+import random
 VALID_WORDS = set()
 compositions = []
 with open("French ODS dictionary.txt", 'r') as f:
@@ -23,8 +24,24 @@ class Dictionary():
                 available_words.add(word)
         return available_words
     
-    def is_word_valid(self, word):
-        return word in VALID_WORDS
+    def is_word_valid(self, word, dictionary):
+        validWords = set()
+        with open(dictionary, 'r') as f:
+            for i in f:
+                if tuple(i.strip().upper()) == word:
+                    print("Valid")
+                    return True
+        print("Not Valid")
+        return False
+    
+    def random_word(self, dictionary):
+        with open(dictionary, 'r') as f:
+            list = []
+            for i in f:
+                list.append(i)
+            random_int = random.randint(0, len(list))
+            word = list[random_int]
+        return word
     '''def find_valid_words(self, player_hand, valid_word_list = VALID_WORDS):
         hand_symbols = [tile.symbol for tile in player_hand]
         hand_counts = Counter(s for s in hand_symbols if s != '?')

@@ -2,13 +2,14 @@ import customtkinter as ctk
 import tkinter as tk
 from accueil import Accueil
 from pratique import Pratique
+from wordle import Wordle
 from dictionnairePage import DictionnairePage
 from scrabble import Scrabble
 class MainApp(ctk.CTk):
     def __init__(self):
         self.scrabble = None
         super().__init__()
-        self.geometry("700x700")
+        self.geometry("1500x700")
         self.title("Application Principale")
         self.show_accueil()
         self.protocol("WM_DELETE_WINDOW", self.quit)
@@ -29,7 +30,8 @@ class MainApp(ctk.CTk):
         view_menu = tk.Menu(menu_bar, tearoff=0)
         menu_bar.add_cascade(label="Affichage", menu=view_menu)
         view_menu.add_command(label="Accueil", command=self.show_accueil)
-        view_menu.add_command(label="Partique", command=self.show_pratique)
+        view_menu.add_command(label="Pratique", command=self.show_pratique)
+        view_menu.add_command(label="Wordle", command=self.show_wordle)
         view_menu.add_command(label="Dictionnaire", command=self.show_dictionnaire)
     def open_file(self):
         self.clear_main_frame()
@@ -50,6 +52,10 @@ class MainApp(ctk.CTk):
     def show_pratique(self):
         self.clear_main_frame()
         self.pratique = Pratique(self)
+        self.create_menu()
+    def show_wordle(self):
+        self.clear_main_frame()
+        self.dictionnaire = Wordle(self)
         self.create_menu()
     def show_dictionnaire(self):
         self.clear_main_frame()
