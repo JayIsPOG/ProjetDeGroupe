@@ -17,6 +17,9 @@ class Wordle(ctk.CTkFrame):
         self.essaies = []
 
         self.create_widgets()
+        self.master.bind('<Return>', self.lireInputEnter)
+        self.master.bind('<Key>', self.clavierLettre)
+        self.master.bind('<BackSpace>', self.motBackspace)
         
         
     def create_widgets(self):
@@ -38,6 +41,10 @@ class Wordle(ctk.CTkFrame):
                     label = ctk.CTkLabel(self.master, text=self.essaies[j][i], fg_color=color, width=50, height=50, text_color="white", font=("arial", 25))
                     label.place(x=i*60+20,y=j*60+20)
                     self.GrilleEssaies.add(label)
+                elif(len(self.essaies) >= j and len(self.inputText) > i):
+                    label = ctk.CTkLabel(self.master, text=self.inputText[i], fg_color="grey", width=50, height=50, text_color="white", font=("arial", 25))
+                    label.place(x=i*60+20,y=j*60+20)
+                    self.GrilleEssaies.add(label)
                 else:
                     label = ctk.CTkLabel(self.master, text="", fg_color="grey", width=50, height=50, text_color="white", font=("arial", 25))
                     label.place(x=i*60+20,y=j*60+20)
@@ -49,7 +56,7 @@ class Wordle(ctk.CTkFrame):
             for j in range(7):
                 self.creerBouttonLettre(i*7+j, j*60+360, i*60+20)
         for j in range(5):
-            self.creerBouttonLettre(i*7+j+7, j*60+420, i*60+80)
+            self.creerBouttonLettre(i*7+j+7, j*60+360, i*60+80)
         
         #Input Mot
         self.input = ctk.CTkTextbox(self.master, fg_color="grey", width=300, height=50, text_color="white", font=("arial", 25))
@@ -59,6 +66,11 @@ class Wordle(ctk.CTkFrame):
         #Entrer
         self.EnterButton = ctk.CTkButton(self.master, text="Entrer", width=100, height=50, command=self.lireInput, fg_color="blue")
         self.EnterButton.place(x=675,y=300)
+
+        #Vider
+        self.EnterButton = ctk.CTkButton(self.master, text="Vider", width=100, height=40, command=self.viderMot, fg_color="red")
+        self.EnterButton.place(x=660,y=200)
+        
         
     def creerBouttonLettre(self, index, posx, posy):
         lettre = self.ALPHABET[index]
@@ -74,26 +86,73 @@ class Wordle(ctk.CTkFrame):
         self.GrilleLettres.add(boutton)
 
     def bouttonLettre(self, lettre):
-        #self.inputText += lettre
-        mot = self.input.get("0.0", "5.0").upper().rstrip()
-        mot += lettre
-        self.inputText = mot
-        self.input.delete("0.0", "end")
-        self.input.insert("0.0", mot)
+        self.inputText = self.input.get("0.0", "5.0").upper().rstrip()
+        if len(self.inputText) < 5:
+            self.inputText += lettre
+            self.inputText = self.inputText
+            self.input.delete("0.0", "end")
+            self.input.insert("0.0", self.inputText)
+            for widget in self.winfo_children():
+                widget.destroy()
+            self.create_widgets()
+        
+
+    def clavierLettre(self, event):
+        self.inputText = self.input.get("0.0", "5.0").upper().rstrip()
+        if event.char and len(self.inputText) < 5:
+            self.inputText += event.char.upper()
+            self.inputText = self.inputText
+            self.input.delete("0.0", "end")
+            self.input.insert("0.0", self.inputText)
+            for widget in self.winfo_children():
+                widget.destroy()
+            self.create_widgets()
+        
 
     def lireInput(self):
-        mot = self.input.get("0.0", "5.0").upper().rstrip()
+        self.inputText = self.input.get("0.0", "5.0").upper().rstrip()
         self.input.delete("0.0", "end")
-        if len(mot) == 5:
-            if Dictionary.is_word_valid(Dictionary, tuple(mot), "dictionnaireWordleAllowed.txt"):
-                self.essaies.append(mot)
-                if self.verifieMot(mot):
-                    print("Yes")
+        if len(self.inputText) == 5:
+            if Dictionary.is_word_valid(Dictionary, tuple(self.inputText), "dictionnaireWordleAllowed.txt"):
+                self.essaies.append(self.inputText)
+                if self.verifieMot(self.inputText):
+                    print("Mot Trouvé")
+                #else:
+                    #print(self.mot)
+            for widget in self.winfo_children():
+                widget.destroy()
+            self.create_widgets()
+        if(len(self.essaies) == 6):
+            print(self.mot)
+
+    def lireInputEnter(self, event):
+        self.inputText = self.input.get("0.0", "5.0").upper().rstrip()
+        self.input.delete("0.0", "end")
+        if len(self.inputText) == 5:
+            if Dictionary.is_word_valid(Dictionary, tuple(self.inputText), "dictionnaireWordleAllowed.txt"):
+                self.essaies.append(self.inputText)
+                if self.verifieMot(self.inputText):
+                    print("Mot Trouvé")
                 #else:
                     #print(self.mot)
             self.create_widgets()
         if(len(self.essaies) == 6):
             print(self.mot)
+
+    def viderMot(self):
+        self.inputText = ""
+        self.input.delete("0.0", "end")
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.create_widgets()
+
+    def motBackspace(self, event):
+        self.inputText = self.inputText[:-1]
+        self.input.delete("0.0", "end")
+        self.input.insert("0.0", self.inputText)
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.create_widgets()
 
     def verifieMot(self, mot):
         for i in range(len(mot)):
@@ -104,5 +163,3 @@ class Wordle(ctk.CTkFrame):
             else:
                 self.lettresIncorrectes += mot[i]
         return mot.upper().rstrip() == self.mot.upper().rstrip()
-
-    
