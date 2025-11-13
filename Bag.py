@@ -23,8 +23,9 @@ class Bag:
         random.shuffle(self.tiles)
         self.tiles_left = len(self.tiles)
     def get_tiles(self, num):
+        end = self.tiles_left
         self.tiles_left = max(0, self.tiles_left - num)
-        return [self.tiles[i] for i in range(self.tiles_left, self.tiles_left + num)]
+        return [self.tiles[i] for i in range(self.tiles_left, end)]
 
 class Player:
     def __init__(self, bag, name):
