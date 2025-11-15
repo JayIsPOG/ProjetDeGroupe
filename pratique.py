@@ -4,7 +4,7 @@ import Bag
 from dictionnaire import Dictionary
 from accueil import Accueil
 
-class PressableButton(ctk.CTkButton):
+class PressableButton(ctk.CTkButton): 
     def __init__(self, master, text, fg_color, width, height, on_command, off_command):
         super().__init__(master, text = text, fg_color = fg_color, width = width, height = height)
         self.configure(command = self.toggle)
@@ -29,9 +29,9 @@ class Pratique(ctk.CTkFrame):
         self.master = master
         self.bag = Bag.Bag()
         self.player = Bag.Player(self.bag,'Joueur 1')
-        self.word_text = ''
+        self.word_text = '' ###### mot actuel en train de selectionner
         self.score = 0
-        self.word_list = ""
+        self.word_list = "" ####### tous les mots valides trouves
         self.available_words = Dictionary.find_valid_words([tile.symbol for tile in self.player.hand])
         self.create_widgets()
 

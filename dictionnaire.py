@@ -1,4 +1,3 @@
-from collections import Counter
 import numpy as np
 VALID_WORDS = set()
 compositions = []

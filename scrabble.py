@@ -7,7 +7,10 @@ from dictionnaire import Dictionary
 import customtkinter as ctk
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+import json
+import websockets
+import threading
+import asyncio
 
 # appret ouvrir un fichier, sa met joueur 2 automatiquement
 # mots aux extremites ne fonctionnes pas
@@ -47,18 +50,63 @@ letter_multiplier = np.array([
      [1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1], 
      [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
      ])
+# ---------------------- Serveur WebSocket ----------------------
+clients = set()
+
+async def handler(ws):
+    clients.add(ws)
+    try:
+        async for message in ws:
+            # Transmettre à tous les autres clients
+            for client in clients:
+                if client != ws:
+                    await client.send(message)
+    finally:
+        clients.remove(ws)
+
+async def ws_server():
+    async with websockets.serve(handler, "localhost", 8765):
+        print("Serveur WebSocket lancé sur ws://localhost:8765")
+        await asyncio.Future()  # boucle infinie
+
+def start_server():
+    asyncio.run(ws_server())
+
+# Lancer le serveur dans un thread séparé
+threading.Thread(target=start_server, daemon=True).start()
+
+# ---------------------- Client WebSocket ----------------------
+async def send_move(ws, move_json):
+    await ws.send(move_json)
+
+async def receive_move(game):
+    async with websockets.connect("ws://localhost:8765") as ws:
+        game.ws = ws
+        async for message in ws:
+            game.load_move(message)
+
+def start_client_loop(game):
+    asyncio.run(receive_move(game))
+
 class Scrabble(ctk.CTkFrame):
-     def __init__(self, master=None, file_name = None):
-          super().__init__(master)
-          self.master = master
-          self.bag = Bag()
-          self.players = (Player(self.bag, "Joueur 1"), Player(self.bag, "Joueur 2"))
-          self.current_player = False
-          self.tile_board = np.full((15, 15), None)
-          self.is_new = np.zeros((15, 15))
-          self.selected_tile = None
-          if file_name: self.load_game(file_name)
-          self.create_widgets()
+     def __init__(self, master=None, file_name=None, server_url="ws://localhost:8765"):
+        super().__init__(master)
+        self.master = master
+        self.bag = Bag()
+        self.players = [Player(self.bag, "Joueur 1"), Player(self.bag, "Joueur 2")]
+        self.current_player = False  # False = joueur 0, True = joueur 1
+        self.tile_board = np.full((15, 15), None)
+        self.is_new = np.zeros((15, 15))
+        self.selected_tile = None
+        self.ws = None  # WebSocket client
+        if file_name:
+            self.load_game(file_name)
+        self.create_widgets()
+
+        # Lancer le client WebSocket dans un thread
+        threading.Thread(target=start_client_loop, args=(self,), daemon=True).start()
+     
+
      def create_widgets(self):
           self.is_first_turn = True
           self.fig, self.ax = plt.subplots(figsize=(9, 9))
@@ -280,7 +328,9 @@ class Scrabble(ctk.CTkFrame):
                          fin.place(relx=0.5, rely=0.5, anchor="center") # Exemple: centré
                          fin.lift()
                     self.draw_board()
-
+                    if self.ws:###############################################################
+                        self.send_move()
+                                               
      def save_game(self, file_name):
           self.return_to_hand()
           with open(file_name, 'w') as file:
@@ -298,6 +348,42 @@ class Scrabble(ctk.CTkFrame):
                          else: file.write('\n')
                for tile in self.bag.tiles:
                     file.write(f"{tile.symbol}{tile.score}\n")
+     def load_move(self, data_json):
+        data = json.loads(data_json)
+        self.current_player = data['current_player']
+        self.players[0].score, self.players[1].score = data['scores']
+        self.is_first_turn = bool(data['is_first_turn'])
+        # Recréer les mains
+        for i, hand_data in enumerate(data['hands']):
+            self.players[i].hand = [Tile(t[0], int(t[1:])) for t in hand_data]
+        # Recréer le plateau
+        for i, row in enumerate(data['board']):
+            for j, cell in enumerate(row):
+                self.tile_board[i, j] = Tile(cell[0], int(cell[1:])) if cell else None
+        # Recréer le sac
+        self.bag.tiles = [Tile(t[0], int(t[1:])) for t in data['bag']]
+        self.bag.tiles_left = len(self.bag.tiles)
+        self.draw_board()
+               
+     def send_move(self):
+        if self.ws:
+            move_json = self.serialize_move()
+            asyncio.run(send_move(self.ws, move_json))
+
+
+
+     def serialize_move(self):
+        data = {
+            'current_player': int(self.current_player),  # np.bool_ -> bool
+            'scores': [int(p.score) for p in self.players],  # np.int64 -> int
+            'is_first_turn': int(self.is_first_turn),  # np.int64 -> int
+            'hands': [[f"{t.symbol}{int(t.score)}" for t in p.hand] for p in self.players],
+            'board': [[f"{t.symbol}{int(t.score)}" if t else None for t in row] for row in self.tile_board],
+            'bag': [f"{t.symbol}{int(t.score)}" for t in self.bag.tiles]
+        }
+        return json.dumps(data)
+
+
 
 
           

@@ -4,6 +4,7 @@ from accueil import Accueil
 from pratique import Pratique
 from dictionnairePage import DictionnairePage
 from scrabble import Scrabble
+
 class MainApp(ctk.CTk):
     def __init__(self):
         self.scrabble = None
@@ -42,9 +43,9 @@ class MainApp(ctk.CTk):
     def show_scrabble(self, typeOfGame="New"):
         self.clear_main_frame()
         if(typeOfGame == "New"):
-            self.scrabble = Scrabble(self)
+            self.scrabble = Scrabble(self,server_url="ws://localhost:8765")
         else:
-            self.scrabble = Scrabble(self, 'game.txt')
+            self.scrabble = Scrabble(self, 'game.txt',server_url="ws://localhost:8765")
         self.scrabble.pack(expand=True, fill="both")
         self.create_menu()
     def show_pratique(self):
