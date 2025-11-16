@@ -1,23 +1,47 @@
-
 import asyncio
 import websockets
+import json
 
-clients = set()
+rooms = {}  # {"ROOM_ID": {"players": [ws1, ws2], "gameState": ... }}
 
+# ---------------------- HANDLER ----------------------
 async def handler(ws):
-    clients.add(ws)
-    try:
-        async for message in ws:
-            # renvoie le message à tous les clients sauf l'envoyeur
-            for client in clients:
-                if client != ws:
-                    await client.send(message)
-    finally:
-        clients.remove(ws)
+    async for msg in ws:
+        try:
+            data = json.loads(msg)
+        except Exception:
+            continue  # ignore les messages invalides
 
+        if data["type"] == "create_room":
+            room_id = data["room"]
+            rooms[room_id] = {"players": [ws]}
+            await ws.send(json.dumps({"type": "room_created", "room": room_id}))
+
+        elif data["type"] == "join_room":
+            room_id = data["room"]
+            if room_id in rooms and len(rooms[room_id]["players"]) < 2:
+                rooms[room_id]["players"].append(ws)
+                await ws.send(json.dumps({"type": "join_success"}))
+
+                # Notifier l’autre joueur
+                for p in rooms[room_id]["players"]:
+                    if p != ws:
+                        await p.send(json.dumps({"type": "opponent_joined"}))
+            else:
+                await ws.send(json.dumps({"type": "join_failed"}))
+
+        elif data["type"] == "move":
+            room_id = data["room"]
+            if room_id in rooms:
+                for p in rooms[room_id]["players"]:
+                    if p != ws:
+                        await p.send(json.dumps(data))
+
+# ---------------------- SERVEUR ----------------------
 async def main():
-    async with websockets.serve(handler, "localhost", 8765):
-        print("Serveur WebSocket en écoute sur ws://localhost:8765")
+    async with websockets.serve(handler, "0.0.0.0", 8765):
+        print("🚀 Serveur Scrabble démarré sur le port 8765")
         await asyncio.Future()  # run forever
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
