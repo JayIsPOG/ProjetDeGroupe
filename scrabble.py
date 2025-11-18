@@ -198,10 +198,11 @@ class ScrabbleClient:
 # ------------------------------
 # Game Window (wrap your Scrabble UI into a class that accepts a client)
 # ------------------------------
-class GameWindow(ctk.CTk):
-    def __init__(self, client: ScrabbleClient, file_name=None):
+class GameWindow(ctk.CTkToplevel):
+    def __init__(self, client: ScrabbleClient, file_name=None,parent = None):
         super().__init__()
         self.client = client
+        self.parent = parent
         # create the Scrabble state (adapted from your pasted code)
         self.bag = Bag()
         self.players = [Player(self.bag, "Joueur 1"), Player(self.bag, "Joueur 2")]
@@ -215,6 +216,8 @@ class GameWindow(ctk.CTk):
             self.load_game(file_name)
         self.title("Scrabble - Partie")
         self.geometry("900x900")
+        self.focus_set()      # met le focus sur cette fenêtre
+        self.transient(self.parent)  # lève la fenêtre au-dessus du parent
         self.create_widgets()
 
     def create_widgets(self):
@@ -646,10 +649,12 @@ class GameWindow(ctk.CTk):
 # ------------------------------
 # Welcome Window (creates or joins a room and opens GameWindow)
 # ------------------------------
-class WelcomeWindow(ctk.CTk):
-    def __init__(self):
+class WelcomeWindow(ctk.CTkToplevel):
+    def __init__(self, parent=None):
         super().__init__()
+        self.parent = parent   # <-- on enregistre le parent
         self.client = ScrabbleClient(on_message_callback=self.on_server_message)
+
         self.title("Scrabble Multiplayer - Accueil")
         self.geometry("400x200")
 
@@ -659,6 +664,7 @@ class WelcomeWindow(ctk.CTk):
         self.entry = ctk.CTkEntry(self)
         self.entry.pack(pady=5)
 
+
         self.btn_create = ctk.CTkButton(self, text="Créer une partie", command=self.on_create)
         self.btn_create.pack(pady=6)
 
@@ -667,7 +673,12 @@ class WelcomeWindow(ctk.CTk):
 
         self.status = ctk.CTkLabel(self, text="")
         self.status.pack(pady=6)
+
+        self.focus_set()      # met le focus sur cette fenêtre
+        self.transient(parent)  # lève la fenêtre au-dessus du parent
+
         self.game_window = None
+
 
     def on_server_message(self, raw_msg):
         # called from client's background thread; schedule to main thread
@@ -726,13 +737,7 @@ class WelcomeWindow(ctk.CTk):
 
     def open_game_window(self):
         self.withdraw()
-        self.game_window = GameWindow(self.client)
-        self.game_window.mainloop()
+        self.game_window = GameWindow(self.client,self.parent)
 
-# ------------------------------
-# Start Application
-# ------------------------------
-if __name__ == "__main__":
-    ctk.set_appearance_mode("dark")
-    app = WelcomeWindow()
-    app.mainloop()
+
+
