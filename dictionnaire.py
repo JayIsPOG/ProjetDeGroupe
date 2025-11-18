@@ -29,9 +29,7 @@ class Dictionary():
         with open(dictionary, 'r') as f:
             for i in f:
                 if tuple(i.strip().upper()) == word:
-                    print("Valid")
                     return True
-        print("Not Valid")
         return False
     
     def random_word(self, dictionary):

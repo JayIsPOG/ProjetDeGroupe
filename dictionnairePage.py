@@ -22,4 +22,4 @@ class DictionnairePage(ctk.CTkFrame):
 
     def readText(self, event):
         self.text = self.textbox.get("0.0", "end")
-        self.result_box.configure(text = 'mot valide' if Dictionary.is_word_valid(Dictionary, tuple(self.text[:-1].upper())) else 'mot invalide')
+        self.result_box.configure(text = 'mot valide' if Dictionary.is_word_valid(Dictionary, tuple(self.text[:-1].upper()), "French ODS dictionary.txt") else 'mot invalide')
