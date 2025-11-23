@@ -2,46 +2,56 @@ import asyncio
 import websockets
 import json
 
-rooms = {}  # {"ROOM_ID": {"players": [ws1, ws2], "gameState": ... }}
+players = []   # [ws1, ws2]
 
-# ---------------------- HANDLER ----------------------
 async def handler(ws):
-    async for msg in ws:
-        try:
+    global players
+
+    # Trop de joueurs ?
+    if len(players) >= 2:
+        await ws.send(json.dumps({"type": "server_full"}))
+        await ws.close()
+        return
+
+    # Ajouter le joueur
+    players.append(ws)
+    player_id = len(players)
+    print(f"🟢 Joueur {player_id} connecté")
+
+    await ws.send(json.dumps({"type": "connected", "player": player_id}))
+
+    # Si 2 joueurs → la partie est prête
+    if len(players) == 2:
+        print("🎮 Les deux joueurs sont connectés, partie prête !")
+        for p in players:
+            await p.send(json.dumps({"type": "ready"}))
+
+    try:
+        async for msg in ws:
             data = json.loads(msg)
-        except Exception:
-            continue  # ignore les messages invalides
 
-        if data["type"] == "create_room":
-            room_id = data["room"]
-            rooms[room_id] = {"players": [ws]}
-            await ws.send(json.dumps({"type": "room_created", "room": room_id}))
-
-        elif data["type"] == "join_room":
-            room_id = data["room"]
-            if room_id in rooms and len(rooms[room_id]["players"]) < 2:
-                rooms[room_id]["players"].append(ws)
-                await ws.send(json.dumps({"type": "join_success"}))
-
-                # Notifier l’autre joueur
-                for p in rooms[room_id]["players"]:
-                    if p != ws:
-                        await p.send(json.dumps({"type": "opponent_joined"}))
-            else:
-                await ws.send(json.dumps({"type": "join_failed"}))
-
-        elif data["type"] == "move":
-            room_id = data["room"]
-            if room_id in rooms:
-                for p in rooms[room_id]["players"]:
+            if data["type"] == "move":
+                # envoyer le move à l’autre joueur
+                for p in players:
                     if p != ws:
                         await p.send(json.dumps(data))
 
-# ---------------------- SERVEUR ----------------------
+    except websockets.ConnectionClosed:
+        pass
+
+    # Déconnexion du joueur
+    print(f"🔴 Joueur {player_id} déconnecté")
+    players.remove(ws)
+
+    # Dire à l’autre joueur qu’il reste seul
+    for p in players:
+        await p.send(json.dumps({"type": "opponent_left"}))
+
+
 async def main():
     async with websockets.serve(handler, "0.0.0.0", 8765):
         print("🚀 Serveur Scrabble démarré sur le port 8765")
-        await asyncio.Future()  # run forever
+        await asyncio.Future()
 
 if __name__ == "__main__":
     asyncio.run(main())
