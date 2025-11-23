@@ -698,7 +698,7 @@ class WelcomeWindow(ctk.CTk):
             return
         fut = self.client.create_room(room)
         try:
-            resp = fut.result(timeout=15)
+            resp = fut.result(timeout=5)
             self.status.configure(text='Salle créée')
             # open game window
             self.open_game_window()
