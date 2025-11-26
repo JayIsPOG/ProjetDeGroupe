@@ -156,7 +156,7 @@ class GameWindow(ctk.CTk):
         if file_name:
             self.load_game(file_name)
         self.title("Scrabble - Partie")
-        self.geometry("900x900")
+        self.geometry("1200x1000")
         self.create_widgets()
 
     def create_widgets(self):
@@ -168,17 +168,21 @@ class GameWindow(ctk.CTk):
         self.ax.axis("off")
         # board squares
         for i in range(15):
-            for j in range(15):
-                if(letter_multiplier[i, j] == 2):
-                    self.ax.add_patch(plt.Rectangle((j, i), 1, 1, facecolor='lightskyblue', edgecolor="white"))
-                elif(letter_multiplier[i, j] == 3):
-                    self.ax.add_patch(plt.Rectangle((j, i), 1, 1, facecolor='dodgerblue', edgecolor="white"))
-                elif(score_multiplier[i, j] == 2):
-                    self.ax.add_patch(plt.Rectangle((j, i), 1, 1, facecolor='tomato', edgecolor="white"))
-                elif(score_multiplier[i, j] == 3):
-                    self.ax.add_patch(plt.Rectangle((j, i), 1, 1, facecolor='red', edgecolor="white"))
-                else:
-                    self.ax.add_patch(plt.Rectangle((j, i), 1, 1, facecolor='tan', edgecolor="white"))
+               for j in range(15):
+                    if(letter_multiplier[i, j] == 2): 
+                         self.ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='lightskyblue', edgecolor="white"))
+                         self.ax.text(j + 0.5, i + 0.5, 'LETTRE\nCOMPTE\nDOUBLE', ha="center", va="center", fontsize=5, color="black")
+                    elif(letter_multiplier[i, j] == 3): 
+                         self.ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='dodgerblue', edgecolor="white"))
+                         self.ax.text(j + 0.5, i + 0.5, 'LETTRE\nCOMPTE\nTRIPLE', ha="center", va="center", fontsize=5, color="black")
+                    elif(score_multiplier[i, j] == 2): 
+                         self.ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='tomato', edgecolor="white"))
+                         if(i != 7 != j): self.ax.text(j + 0.5, i + 0.5, 'MOT\nCOMPTE\nDOUBLE', ha="center", va="center", fontsize=5, color="black")
+                    elif(score_multiplier[i, j] == 3): 
+                         self.ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='red', edgecolor="white"))
+                         self.ax.text(j + 0.5, i + 0.5, 'MOT\nCOMPTE\nTRIPLE', ha="center", va="center", fontsize=5, color="black")
+                    else: 
+                         self.ax.add_patch(plt.Rectangle((j, i), 1, 1,facecolor='tan', edgecolor="white"))
         self.ax.plot(7.5, 7.5, '*', markersize = 22, color = 'black')
 
         self.canvas = FigureCanvasTkAgg(plt.gcf(), master=self)
@@ -223,13 +227,12 @@ class GameWindow(ctk.CTk):
         self.btn_finish.grid(row=0, column=2, padx=6)
 
         # score labels
-        self.score_labels = (
-            ctk.CTkLabel(self, text = f"{self.players[0].name}{' (Vous)' if self.my_player==0 else ''} : {self.players[0].score}"),
-            ctk.CTkLabel(self, text = f"{self.players[1].name}{' (Vous)' if self.my_player==1 else ''} : {self.players[1].score}")
-        )
+        self.score_labels = (ctk.CTkLabel(self, text = f"Score de {self.players[0].name} : {self.players[0].score}"),
+                             ctk.CTkLabel(self, text = f"Score de {self.players[1].name} : {self.players[1].score}"))
         self.score_labels[self.current_player].configure(text_color = 'red')
-        self.score_labels[0].pack(anchor='nw')
-        self.score_labels[1].pack(anchor='nw')
+        self.score_labels[0].place(x=10, y=10, anchor='nw')
+        self.score_labels[1].place(x=10, y=40, anchor='nw')  # décale le deuxième en dessous
+
 
         self.draw_board()
 
@@ -649,28 +652,48 @@ class GameWindow(ctk.CTk):
 
 # ------------------------------
 # Welcome Window (creates or joins a room and opens GameWindow)
-# ------------------------------
+
 class WelcomeWindow(ctk.CTk):
     def __init__(self):
         super().__init__()
+        # Initialisation du client
         self.client = ScrabbleClient(on_message_callback=self.on_server_message)
-        self.title("Scrabble Multiplayer - Accueil")
-        self.geometry("400x200")
+        
+        # Configuration de la fenêtre (Améliorations graphiques)
+        self.title("Scrabble Multijoueur 🎲 - Accueil")
+        self.geometry("450x350")
+        self.resizable(False, False) # Empêche le redimensionnement
 
-        self.label = ctk.CTkLabel(self, text="Room ID:")
-        self.label.pack(pady=10)
+        # Configuration de la grille pour centrer les éléments
+        self.grid_rowconfigure(5, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        
+        # Titre
+        self.title_label = ctk.CTkLabel(self, text="Rejoindre ou Créer une Partie", 
+                                        font=ctk.CTkFont(size=20, weight="bold"))
+        self.title_label.grid(row=0, column=0, pady=(30, 15), padx=50, sticky="n")
 
-        self.entry = ctk.CTkEntry(self)
-        self.entry.pack(pady=5)
+        # Entrée Room ID
+        self.label = ctk.CTkLabel(self, text="Entrez un Room ID (ex: SALLE123):")
+        self.label.grid(row=1, column=0, pady=(5, 0), sticky="s")
 
-        self.btn_create = ctk.CTkButton(self, text="Créer une partie", command=self.on_create)
-        self.btn_create.pack(pady=6)
+        self.entry = ctk.CTkEntry(self, width=250, placeholder_text="ROOM ID")
+        self.entry.grid(row=2, column=0, pady=10, sticky="n")
 
-        self.btn_join = ctk.CTkButton(self, text="Rejoindre une partie", command=self.on_join)
-        self.btn_join.pack(pady=6)
+        # Boutons (Améliorations graphiques)
+        self.btn_create = ctk.CTkButton(self, text="➕ Créer une partie", 
+                                        command=self.on_create, width=250, height=40)
+        self.btn_create.grid(row=3, column=0, pady=5, sticky="n")
 
-        self.status = ctk.CTkLabel(self, text="")
-        self.status.pack(pady=6)
+        self.btn_join = ctk.CTkButton(self, text="➡️ Rejoindre une partie", 
+                                      command=self.on_join, width=250, height=40,
+                                      fg_color="darkgreen", hover_color="green")
+        self.btn_join.grid(row=4, column=0, pady=5, sticky="n")
+
+        # Statut
+        self.status = ctk.CTkLabel(self, text="Statut: Déconnecté", text_color="orange")
+        self.status.grid(row=5, column=0, pady=(20, 10), sticky="s")
+        
         self.game_window = None
 
     def on_server_message(self, raw_msg):
@@ -680,17 +703,21 @@ class WelcomeWindow(ctk.CTk):
                 data = json.loads(raw_msg)
                 t = data.get('type')
                 if t == 'room_created':
-                    self.status.configure(text=f"Salle {data.get('room')} créée")
+                    # Si on est ici, on a déjà créé et ouvert la fenêtre, on met juste à jour le statut
+                    print(f"Salle {data.get('room')} créée")
                 elif t == 'join_success':
-                    self.status.configure(text="Rejoint avec succès")
+                    print("Rejoint avec succès")
                 elif t == 'opponent_joined':
-                    self.status.configure(text="Adversaire connecté — la partie peut commencer")
+                    # Si la fenêtre est déjà ouverte (logique d'ouverture restaurée), ce message
+                    # est juste informatif pour le créateur.
+                    if self.game_window:
+                        self.game_window.title(f"Scrabble - Partie dans {self.client.room_id}")
                 elif t == 'move':
                     # forward move to game window
                     if self.game_window:
                         self.game_window.load_move(raw_msg)
                 else:
-                    self.status.configure(text=str(data))
+                    print(str(data))
             except Exception as e:
                 print('Error handling server message:', e)
         self.after(0, _handle)
@@ -698,47 +725,43 @@ class WelcomeWindow(ctk.CTk):
     def on_create(self):
         room = self.entry.get().strip().upper()
         if not room:
-            self.status.configure(text='Entrez un Room ID')
+            self.status.configure(text='Statut: Entrez un Room ID', text_color="red")
             return
+        self.status.configure(text='Statut: Tentative de création...', text_color="grey")
         fut = self.client.create_room(room)
         try:
             resp = fut.result(timeout=5)
-            self.status.configure(text='Salle créée')
             # Créateur = joueur 0
             my_index = 0
-            # open game window en passant l'index du joueur local
+            # RESTAURÉ : Ouverture immédiate de la GameWindow
             self.open_game_window(my_index)
-            # start listening (déjà lancé dans client mais on s'assure)
-            self.client._run(self.client._listen_forever())
         except Exception as e:
-            self.status.configure(text=f'Erreur create: {e}')
+            self.status.configure(text=f"Statut: Erreur lors de la création: {e}", text_color="red")
 
     def on_join(self):
         room = self.entry.get().strip().upper()
         if not room:
-            self.status.configure(text='Entrez un Room ID')
+            self.status.configure(text='Statut: Entrez un Room ID', text_color="red")
             return
+        self.status.configure(text='Statut: Tentative de rejoindre...', text_color="grey")
         fut = self.client.join_room(room)
         try:
             resp = fut.result(timeout=5)
             if resp.get('type') == 'join_failed':
-                self.status.configure(text='Échec du join')
+                self.status.configure(text='Statut: Échec du join. Salle inexistante ou pleine.', text_color="red")
                 return
-            self.status.configure(text='Rejoint')
             # JOINEUR = joueur 1
             my_index = 1
+            # RESTAURÉ : Ouverture immédiate de la GameWindow
             self.open_game_window(my_index)
-            # listening already started inside join_room
         except Exception as e:
-            self.status.configure(text=f'Erreur join: {e}')
-
+            self.status.configure(text=f"Statut: Erreur lors du join: {e}", text_color="red")
+            
     def open_game_window(self, my_index=0):
         self.withdraw()
         # PASSER my_index ici
         self.game_window = GameWindow(self.client, my_index)
         self.game_window.mainloop()
-
-
 # ------------------------------
 # Start Application
 # ------------------------------
