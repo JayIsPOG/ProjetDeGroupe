@@ -6,7 +6,6 @@ import json
 # Partie unique
 # ----------------------
 players = []  # liste des websockets connectés
-game_state = {}  # on pourra stocker éventuellement l'état complet
 
 async def handler(ws):
     global players

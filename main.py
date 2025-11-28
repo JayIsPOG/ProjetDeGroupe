@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from scrabble import ScrabbleClient
-from scrabble import GameWindow
+from scrabble import GameWindow1
 from scrabble import WelcomeWindow  # si tu mets WelcomeWindow dans un fichier séparé
 import asyncio
 import websockets
