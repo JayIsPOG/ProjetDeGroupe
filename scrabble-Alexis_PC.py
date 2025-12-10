@@ -11,6 +11,8 @@ from Bag import Bag
 from dictionnaire import Dictionary
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+SERVER_IP = "ws://143.198.52.17:8765"
+
 score_multiplier = np.array([
              [3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3],
              [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
@@ -47,11 +49,10 @@ letter_multiplier = np.array([
         ])
 
 # ------------------------------
-# PARTIE CLIENT-SERVEUR COMME
-# <NTÉE
+# PARTIE CLIENT-SERVEUR COMMENTÉE
 # ------------------------------
 
-SERVER_IP = None  # Adresse du serveur WebSocket Scrabble
+SERVER_IP = "ws://165.227.38.141:8765"  # Adresse du serveur WebSocket Scrabble
 
 class ScrabbleClient:
     def __init__(self, on_message_callback=None):
@@ -152,7 +153,6 @@ class GameWindow(ctk.CTk):
         super().__init__()
         self.client = client
         self.bag = Bag()
-
         self.players = [Player(self.bag, "Joueur 1"), Player(self.bag, "Joueur 2")]
         self.current_player = False
         self.tile_board = np.full((15, 15), None)
@@ -228,10 +228,9 @@ class GameWindow(ctk.CTk):
         self.btn_return.grid(row=0, column=1, padx=6)
         self.btn_finish = ctk.CTkButton(self.btn_frame, text = "Valider mot", command=self.finish_turn)
         self.btn_finish.grid(row=0, column=2, padx=6)
+
         self.score_labels = (ctk.CTkLabel(self, text = f"Score de {self.players[0].name} : {self.players[0].score}"),
                              ctk.CTkLabel(self, text = f"Score de {self.players[1].name} : {self.players[1].score}"))
-        
-
         self.score_labels[self.current_player].configure(text_color = 'red')
         self.score_labels[0].place(x=10, y=10, anchor='nw')
         self.score_labels[1].place(x=10, y=40, anchor='nw')
@@ -580,27 +579,18 @@ class WelcomeWindow(ctk.CTk):
         self.title("Scrabble Multijoueur 🎲 - Accueil")
         self.geometry("450x350")
         self.resizable(False, False)
-        self.grid_rowconfigure(6, weight=1)
+        self.grid_rowconfigure(5, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.title_label = ctk.CTkLabel(self, text="Rejoindre ou Créer une Partie", 
                                         font=ctk.CTkFont(size=20, weight="bold"))
         self.title_label.grid(row=0, column=0, pady=(30, 15), padx=50, sticky="n")
         self.label = ctk.CTkLabel(self, text="Entrez un Room ID (ex: SALLE123):")
-
-
-
         self.label.grid(row=1, column=0, pady=(5, 0), sticky="s")
         self.entry = ctk.CTkEntry(self, width=250, placeholder_text="ROOM ID")
         self.entry.grid(row=2, column=0, pady=10, sticky="n")
         self.btn_create = ctk.CTkButton(self, text="➕ Créer une partie", 
                                         command=self.on_create, width=250, height=40)
         self.btn_create.grid(row=3, column=0, pady=5, sticky="n")
-
-        self.ip_choice = ctk.CTkEntry(self, placeholder_text="Entrez une IP", 
-                                         width=250, height=40)
-        self.ip_choice.grid(row=6, column=0, pady=5, sticky="n")
-
-
         self.btn_join = ctk.CTkButton(self, text="➡️ Rejoindre une partie", 
                                       command=self.on_join, width=250, height=40,
                                       fg_color="darkgreen", hover_color="green")
@@ -649,7 +639,7 @@ class WelcomeWindow(ctk.CTk):
 
     def on_create(self):
         room = self.entry.get().strip().upper()  # On récupère le nom de salle entré par l'utilisateur
-        SERVER_IP = "ws://"+ self.ip_choice.get().strip().upper() + ":8765"
+
         if not room:
             # Aucun texte → erreur utilisateur
             self.status.configure(text='Statut: Entrez un Room ID', text_color="red")
@@ -670,7 +660,8 @@ class WelcomeWindow(ctk.CTk):
         except Exception as e:
             # En cas d’erreur (salle déjà prise, serveur hors-ligne, etc.)
             self.status.configure(text=f"Statut: Erreur lors de la création: {e}", text_color="red")
-        
+
+
     def on_join(self):
         room = self.entry.get().strip().upper()  # On récupère le nom de salle entré
 
