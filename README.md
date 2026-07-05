@@ -5,6 +5,6 @@ Le jeu est codé en python et utilise les librairies CustomTkinter, matplotlib e
 
 ## Autheurs
 
+-   Alexis Bernier
 -   Azur Comeau
 -   Jayden Forest
--   Alexis Bernier
